@@ -9,7 +9,8 @@ ENV HOME=/home/$USERNAME
 
 RUN pacman -Syu --noconfirm --needed git sudo && \
     pacman -Scc --noconfirm && \
-    pacman -S tree nodejs-nopt --noconfirm
+    pacman -S tree --noconfirm
+#    pacman -S tree nodejs-nopt npm curl --noconfirm
 
 RUN sed -i 's/^VERSION_ID=.*/VERSION_ID=rolling/' /etc/os-release
 

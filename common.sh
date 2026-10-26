@@ -55,7 +55,7 @@ function resolve_stage_dir() {
     local stage_dir_name=$(printf "%.2d" "$stage_num")
     local id="${OS_INFO[ID]:-unknown}"
     
-    # Normalizar 'arch' para que apunte a la carpeta 'archlinux' de tu árbol
+    # Normalizar 'arch' para que apunte a la carpeta 'archlinux'. . .
     if [ "$id" = "arch" ]; then
         id="archlinux"
     fi
@@ -125,4 +125,67 @@ function podmanrun() {
         "$image"
 
     cd "$oldPWD"
+}
+
+function init() {
+    local script_path="$1"
+    prettyprint 0 "Inicializando especificaciones para: $(basename "$script_path")"
+    
+    # Activar automáticamente el entorno local de Node/npm si existe. . .
+    local local_node_bin="$PWD/.node_env/bin"
+    if [ -d "$local_node_bin" ]; then
+        export PATH="$local_node_bin:$PATH"
+    fi
+}
+
+function run_stage_scripts() {
+    local stage_dir="$1"
+    
+    # Verificar si existen archivos .sh en la etapa
+    if compgen -G "$stage_dir/*.sh" > /dev/null; then
+        # Ordenar y ejecutar cada script .sh encontrado en la etapa
+        for script in $(ls "$stage_dir"/*.sh | sort); do
+            if [ -f "$script" ]; then
+                prettyprint 0 "--> Ejecutando script: $(basename "$script")"
+                init "$script"
+                # Ejecutar el script manteniendo el control de errores del padre
+                bash "$script"
+            fi
+        done
+    else
+        prettyprint 1 "No se encontraron scripts .sh en la etapa $(basename "$stage_dir")"
+    fi
+}
+
+declare -A REQUIREMENTS
+
+function load_requirements() {
+    local req_file="install/requirements.conf"
+    
+    if [ ! -f "$req_file" ]; then
+        prettyprint 2 "Error crítico: No se encontró el archivo de requerimientos en $req_file"
+        exit 1
+    fi
+
+    # Limpiar el array por si se recarga
+    REQUIREMENTS=()
+
+    while IFS='=' read -r key value; do
+        # Ignorar comentarios y líneas vacías
+        [[ -z "$key" || "$key" =~ ^# ]] && continue
+        
+        # Eliminar espacios en blanco alrededor de las claves y valores
+        key="$(echo "$key" | xargs)"
+        value="$(echo "$value" | xargs)"
+        
+        # Remover comillas dobles o simples si las tuviera
+        value="${value%\"}"
+        value="${value#\"}"
+        value="${value%\'}"
+        value="${value#\'}"
+        
+        REQUIREMENTS["$key"]="$value"
+    done < "$req_file"
+
+    prettyprint 0 "Requerimientos leídos exitosamente desde $req_file"
 }

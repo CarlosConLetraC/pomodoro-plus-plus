@@ -8,7 +8,8 @@ ENV SHELL=/bin/bash
 ENV HOME=/home/$USERNAME
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt update && apt install -y git sudo tree npm
+RUN apt update && apt install -y git sudo tree
+# RUN sudo npm install -g --force node@latest
 
 RUN groupadd --gid $USER_GID $USERNAME && \
     useradd --uid $USER_UID --gid $USER_GID -ms /bin/bash $USERNAME && \
