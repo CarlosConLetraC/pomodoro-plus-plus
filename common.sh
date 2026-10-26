@@ -106,26 +106,65 @@ function podmanbuild() {
 }
 
 function podmanrun() {
-    oldPWD="$(pwd)"
-    cd ~
-
     if [ -z "$1" ]; then
         prettyprint 2 "Uso: podmanrun <imagen>"
-    	cd "$oldPWD"
         return 1
     fi
 
     local image="$1"
     local user=$(whoami)
+    local host_home=""
+    local current_pwd="$(pwd)"
+    local container_workdir=""
+
+    # Detectar el entorno y definir el directorio base del usuario
+    if grep -qEi "(microsoft|wsl)" /proc/version &>/dev/null; then
+        prettyprint 0 "Entorno WSL detectado."
+        host_home="/mnt/c/Users/${user}"
+    else
+        prettyprint 0 "Entorno Linux nativo detectado."
+        host_home="$HOME"
+    fi
+
+    # Preservar la estructura de rutas relativa dentro del contenedor
+    if [[ "$current_pwd" == "$host_home"* ]]; then
+        local relative_path="${current_pwd#$host_home}"
+        container_workdir="/home/${user}${relative_path}"
+    else
+        container_workdir="/home/${user}"
+    fi
+
+    prettyprint 0 "Montando directorio base: $host_home -> /home/${user}"
+    prettyprint 0 "Posicionándose en el path equivalente: $container_workdir"
 
     podman run -it \
         --userns=keep-id \
-        -v "$(pwd):/home/${user}:Z" \
-        -w "/home/${user}" \
+        -v "$host_home:/home/${user}:Z" \
+        -w "$container_workdir" \
         "$image"
-
-    cd "$oldPWD"
 }
+
+# function podmanrun() {
+#     oldPWD="$(pwd)"
+#     cd ~
+# 
+#     if [ -z "$1" ]; then
+#         prettyprint 2 "Uso: podmanrun <imagen>"
+#         cd "$oldPWD"
+#         return 1
+#     fi
+# 
+#     local image="$1"
+#     local user=$(whoami)
+# 
+#     podman run -it \
+#         --userns=keep-id \
+#         -v "$(pwd):/home/${user}:Z" \
+#         -w "/home/${user}" \
+#         "$image"
+# 
+#     cd "$oldPWD"
+# }
 
 function init() {
     local script_path="$1"
