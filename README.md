@@ -22,9 +22,43 @@ git clone https://github.com/CarlosConLetraC/pomodoro-plus-plus.git
 cd pomodoro-plus-plus
 ```
 
-2. **Ejecutar el orquestador principal (`setup.sh`)**:
+2. **Iniciar contenedor con podman**
+Se recomienda utilizar podman para evitar instalar dependencias temporales en su sistema principal. Para ello se debe instalar podman en caso de no tenerlo en el sistema.
+
+* Arch Linux (o derivados):
+```bash
+sudo pacman -S podman --noconfirm
+```
+
+* Debian (o derivados):
+```bash
+sudo apt-get update
+sudo apt install -y podman
+```
+
+Una vez hecho esto, configure los contenedores podman mediante el siguiente comando:
+```bash
+./pods.sh dockerfile/<contenedor deseado>.dockerfile
+
+```
+
+Si desea configurar TODOS los contenedores predefinidos. Simplemente haga:
+```bash
+./pods.sh
+```
+
+Hecho lo anterio, inicie el contenedor podman utilizando el siguiente commando:
+```bash
+source common.sh
+podmanrun podman_<contenedor deseado>
+# <contenedor deseado>: distribución linux deseada (actualmente únicamente se puede modular mediante cachyos).
+# Por lo que necesita ejecutar: podmanrun podman_cachyos
+```
+
+3. **Ejecutar el orquestador principal (`setup.sh`)**:
 Este script detecta tu distribución compatible, lee los parámetros globales desde `install/requirements.conf`, configura las herramientas del sistema operativo mediante `pacman`|`apt`, instala Node.js de forma aislada en `.node_env`, descarga los binarios de Electron y prepara las dependencias de empaquetado.
 ```bash
+# NOTA: asegurar estar dentro del contenedor podman antes de ejecutar el setup.
 ./setup.sh
 ```
 
