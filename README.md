@@ -23,7 +23,7 @@ cd pomodoro-plus-plus
 ```
 
 2. **Ejecutar el orquestador principal (`setup.sh`)**:
-Este script detecta tu distribución compatible, lee los parámetros globales desde `install/requirements.conf`, configura las herramientas del sistema operativo mediante `pacman`, instala Node.js de forma aislada en `.node_env`, descarga los binarios de Electron y prepara las dependencias de empaquetado.
+Este script detecta tu distribución compatible, lee los parámetros globales desde `install/requirements.conf`, configura las herramientas del sistema operativo mediante `pacman`|`apt`, instala Node.js de forma aislada en `.node_env`, descarga los binarios de Electron y prepara las dependencias de empaquetado.
 ```bash
 ./setup.sh
 ```
