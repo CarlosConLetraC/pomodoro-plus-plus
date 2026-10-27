@@ -11,7 +11,7 @@ fi
 
 ELEC_VER="${REQUIREMENTS[ELECTRON_VERSION]}"
 
-prettyprint 0 "Instalando dependencias de sistema para Electron (pacman). . ."
+prettyprint 0 "Instalando dependencias de sistema para Electron (pacman)..."
 sudo pacman -Syu --noconfirm --needed \
     nss \
     nspr \
@@ -29,16 +29,16 @@ sudo pacman -Syu --noconfirm --needed \
     libxdamage \
     libxrandr \
     libxfixes \
-    libx11
+    libx11 \
+    unzip
 
-prettyprint 0 "Instalando localmente electron@${ELEC_VER} en el proyecto. . ."
+prettyprint 0 "Instalando localmente electron@${ELEC_VER} en el proyecto..."
 
 if [ ! -f "package.json" ]; then
     prettyprint 2 "Error crítico: No se encontró package.json en la raíz del proyecto."
     exit 1
 fi
 
-# Asegurar que el PATH incluya nuestro entorno local de Node
 export PATH="$PWD/.node_env/bin:$PATH"
 
 npm install --save-dev "electron@${ELEC_VER}" || npm install --save-dev --ignore-scripts "electron@${ELEC_VER}"
@@ -46,7 +46,7 @@ npm install --save-dev "electron@${ELEC_VER}" || npm install --save-dev --ignore
 ELECTRON_DIST_DIR="node_modules/electron/dist"
 
 if [ ! -f "$ELECTRON_DIST_DIR/electron" ]; then
-    prettyprint 1 "Descargando binario oficial de Electron v${ELEC_VER} manualmente. . ."
+    prettyprint 1 "Descargando binario oficial de Electron v${ELEC_VER} manualmente..."
     
     mkdir -p "$ELECTRON_DIST_DIR"
     ELEC_URL="https://github.com/electron/electron/releases/download/v${ELEC_VER}/electron-v${ELEC_VER}-linux-x64.zip"
@@ -54,7 +54,7 @@ if [ ! -f "$ELECTRON_DIST_DIR/electron" ]; then
     prettyprint 0 "Descargando desde: $ELEC_URL"
     curl -fL "$ELEC_URL" -o /tmp/electron.zip
     
-    prettyprint 0 "Extrayendo binarios de Electron. . ."
+    prettyprint 0 "Extrayendo binarios de Electron..."
     unzip -qo /tmp/electron.zip -d "$ELECTRON_DIST_DIR"
     rm -f /tmp/electron.zip
 fi
@@ -72,11 +72,20 @@ if [ -f "$ELECTRON_DIST_DIR/chrome-sandbox" ]; then
     sudo chmod 4755 "$ELECTRON_DIST_DIR/chrome-sandbox" || true
 fi
 
-# VALIDACIÓN ESTRICTA DE DIRECTORIO SRC (Sin hardcodeos ni fallbacks automáticos)
+# INSTALACIÓN/VERIFICACIÓN DE ELECTRON-BUILDER
+prettyprint 0 "Verificando disponibilidad de electron-builder para empaquetado final. . ."
+if [ ! -f "node_modules/.bin/electron-builder" ]; then
+    prettyprint 1 "electron-builder no detectado. Instalando dependencia dev localmente. . ."
+    ./.node_env/bin/npm install --save-dev electron-builder
+else
+    prettyprint 0 "electron-builder ya se encuentra instalado localmente."
+fi
+
+# VALIDACIÓN ESTRICTA DE DIRECTORIO SRC
 prettyprint 0 "Validando estructura modular existente en el directorio src/. . ."
 
 if [ ! -d "src" ]; then
-    prettyprint 2 "Error crítico: El directorio 'src/' no existe. Debes proveer la estructura modular de tu aplicación."
+    prettyprint 2 "Error crítico: El directorio 'src/' no existe. Debes proveer la estructura modular de su aplicación."
     exit 1
 fi
 
@@ -90,7 +99,7 @@ if [ ! -f "src/index.html" ]; then
     exit 1
 fi
 
-# Asegurar que el package.json apunte correctamente al index.js existente sin sobrescribir scripts ajenos
+# Configurar package.json con el script de start y la sección de build de electron-builder
 node -e '
 const fs = require("fs");
 const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
@@ -99,9 +108,25 @@ pkg.scripts = pkg.scripts || {};
 if (!pkg.scripts.start) {
     pkg.scripts.start = "electron .";
 }
+if (!pkg.scripts.build) {
+    pkg.scripts.build = "electron-builder --linux dir";
+}
+pkg.build = pkg.build || {
+    appId: "com.pomodoro.app",
+    productName: "Pomodoro Plus Plus",
+    directories: {
+        output: "dist"
+    },
+    files: [
+        "src/**/*",
+        "package.json"
+    ],
+    linux: {
+        target: ["dir"],
+        category: "Utility"
+    }
+};
 fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2));
 '
 
-prettyprint 0 "Verificación completada exitosamente. Usando fuentes reales de src/:"
-ls -la src/
-./node_modules/.bin/electron --version
+prettyprint 0 "Verificación y aprovisionamiento completados exitosamente."

@@ -1,6 +1,7 @@
+.node_env
 node_modules
 package-lock.json
 package.json
 chromium_src
 depot_tools
-.node_env
+dist
