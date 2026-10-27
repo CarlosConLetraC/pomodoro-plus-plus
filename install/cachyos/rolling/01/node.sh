@@ -14,7 +14,7 @@ SYS_ARCH="${REQUIREMENTS[ARCH]}"
 
 LOCAL_NODE_DIR="$PWD/.node_env"
 
-prettyprint 0 "Instalando Node.js v${NODE_VER} (${SYS_ARCH}) localmente en $LOCAL_NODE_DIR (estilo .venv)..."
+prettyprint 0 "Instalando Node.js v${NODE_VER} (${SYS_ARCH}) localmente en $LOCAL_NODE_DIR (estilo .venv). . ."
 
 mkdir -p "$LOCAL_NODE_DIR"
 
@@ -31,3 +31,4 @@ export PATH="$LOCAL_NODE_DIR/bin:$PATH"
 prettyprint 0 "Verificación de la instalación local:"
 node -v
 npm -v
+prettyprint 0 "OK"

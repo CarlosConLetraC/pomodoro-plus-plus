@@ -9,7 +9,7 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PATH="$PROJECT_ROOT/.node_env/bin:$PATH"
 
 prettyprint 0 "Entorno local cargado (.node_env/bin)"
-prettyprint 0 "Verificando versiones locales..."
+prettyprint 0 "Verificando versiones locales. . ."
 node -v
 npm -v
 

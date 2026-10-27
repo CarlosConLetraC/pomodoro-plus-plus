@@ -9,7 +9,7 @@ get_os_version
 prettyprint 0 "Detected OS: ${OS_INFO[NAME]} (${OS_INFO[ID]})"
 prettyprint 0 "Version: ${OS_INFO[VERSION_ID]}"
 
-prettyprint 0 "Limpiando contenedores detenidos..."
+prettyprint 0 "Limpiando contenedores detenidos. . ."
 podman container prune -f &>/dev/null || true
 
 for file in "$BASE_PATH/dockers"/*.dockerfile; do
@@ -21,7 +21,7 @@ for file in "$BASE_PATH/dockers"/*.dockerfile; do
     fi
 done
 
-prettyprint 0 "Iniciando construcción de nuevas imágenes..."
+prettyprint 0 "Iniciando construcción de nuevas imágenes. . ."
 for file in "$BASE_PATH/dockers"/*.dockerfile; do
     filename=$(basename "$file" .dockerfile)
     podmanbuild "$file" "podman_${filename}"
