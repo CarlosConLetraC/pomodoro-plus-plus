@@ -23,7 +23,11 @@ function prettyprint() {
 }
 
 function get_os_version() {
-    # Populate the global OS_INFO array
+    if [ ! -f /etc/os-release ]; then
+        prettyprint 2 "Error crítico: No se encontró /etc/os-release en el sistema."
+        exit 1
+    fi
+
     while IFS='=' read -r key value; do
         [[ -z "$key" || "$key" =~ ^# ]] && continue
         value="${value%\"}"
@@ -31,37 +35,35 @@ function get_os_version() {
         OS_INFO["$key"]="$value"
     done < /etc/os-release
 
-    # Fallback for NAME if missing
-    [[ -z "${OS_INFO[NAME]:-}" ]] && OS_INFO[NAME]="Unknown Linux"
-    
-    # Fallback for ID if missing
-    [[ -z "${OS_INFO[ID]:-}" ]] && OS_INFO[ID]="unknown"
-
-    # Priorizar BUILD_ID (como 'rolling') si existe; de lo contrario usar VERSION_ID o por defecto "rolling"
-    if [[ -n "${OS_INFO[BUILD_ID]:-}" ]]; then
-        OS_INFO[VERSION_ID]="${OS_INFO[BUILD_ID]}"
-    elif [[ -z "${OS_INFO[VERSION_ID]:-}" ]]; then
-        OS_INFO[VERSION_ID]="rolling"
+    if [ -z "${OS_INFO[ID]:-}" ]; then
+        prettyprint 2 "Error crítico: El identificador ID del sistema operativo no está definido."
+        exit 1
     fi
 
-    # Fallback for VERSION (Use PRETTY_NAME or VERSION_ID if VERSION is missing)
-    if [[ -z "${OS_INFO[VERSION]:-}" ]]; then
-        OS_INFO[VERSION]="${OS_INFO[PRETTY_NAME]:-${OS_INFO[VERSION_ID]}}"
+    if [[ -n "${OS_INFO[BUILD_ID]:-}" ]]; then
+        OS_INFO[VERSION_ID]="${OS_INFO[BUILD_ID]}"
+    elif [ -z "${OS_INFO[VERSION_ID]:-}" ]; then
+        OS_INFO[VERSION_ID]="rolling"
     fi
 }
 
 function resolve_stage_dir() {
     local stage_num=$1
     local stage_dir_name=$(printf "%.2d" "$stage_num")
-    local id="${OS_INFO[ID]:-unknown}"
+    local id="${OS_INFO[ID]}"
     
-    # Normalizar 'arch' para que apunte a la carpeta 'archlinux'. . .
     if [ "$id" = "arch" ]; then
         id="archlinux"
     fi
     
-    local version="${OS_INFO[VERSION_ID]:-rolling}"
+    local version="${OS_INFO[VERSION_ID]}"
     local target_dir="install/$id/$version/$stage_dir_name"
+
+    if [ ! -d "$target_dir" ]; then
+        prettyprint 2 "Error crítico: No existe la ruta de etapas estricta para $id ($version) en $target_dir"
+        exit 1
+    fi
+
     echo "$target_dir"
 }
 
@@ -75,7 +77,6 @@ function podmanbuild() {
     local tag="$2"
     local dockerfile=""
 
-    # Resolve Dockerfile path intelligently:
     if [ -f "$input_file" ]; then
         dockerfile="$input_file"
     elif [ -f "dockers/$input_file" ]; then
@@ -87,7 +88,6 @@ function podmanbuild() {
         return 1
     fi
 
-    # If tag is not provided, automatically generate one from the filename
     if [ -z "$tag" ]; then
         tag=$(basename "$dockerfile" .dockerfile)
     fi
@@ -117,7 +117,6 @@ function podmanrun() {
     local current_pwd="$(pwd)"
     local container_workdir=""
 
-    # Detectar el entorno y definir el directorio base del usuario
     if grep -qEi "(microsoft|wsl)" /proc/version &>/dev/null; then
         prettyprint 0 "Entorno WSL detectado."
         host_home="/mnt/c/Users/${user}"
@@ -126,7 +125,6 @@ function podmanrun() {
         host_home="$HOME"
     fi
 
-    # Preservar la estructura de rutas relativa dentro del contenedor
     if [[ "$current_pwd" == "$host_home"* ]]; then
         local relative_path="${current_pwd#$host_home}"
         container_workdir="/home/${user}${relative_path}"
@@ -144,33 +142,10 @@ function podmanrun() {
         "$image"
 }
 
-# function podmanrun() {
-#     oldPWD="$(pwd)"
-#     cd ~
-# 
-#     if [ -z "$1" ]; then
-#         prettyprint 2 "Uso: podmanrun <imagen>"
-#         cd "$oldPWD"
-#         return 1
-#     fi
-# 
-#     local image="$1"
-#     local user=$(whoami)
-# 
-#     podman run -it \
-#         --userns=keep-id \
-#         -v "$(pwd):/home/${user}:Z" \
-#         -w "/home/${user}" \
-#         "$image"
-# 
-#     cd "$oldPWD"
-# }
-
 function init() {
     local script_path="$1"
     prettyprint 0 "Inicializando especificaciones para: $(basename "$script_path")"
     
-    # Activar automáticamente el entorno local de Node/npm si existe. . .
     local local_node_bin="$PWD/.node_env/bin"
     if [ -d "$local_node_bin" ]; then
         export PATH="$local_node_bin:$PATH"
@@ -180,19 +155,17 @@ function init() {
 function run_stage_scripts() {
     local stage_dir="$1"
     
-    # Verificar si existen archivos .sh en la etapa
     if compgen -G "$stage_dir/*.sh" > /dev/null; then
-        # Ordenar y ejecutar cada script .sh encontrado en la etapa
         for script in $(ls "$stage_dir"/*.sh | sort); do
             if [ -f "$script" ]; then
                 prettyprint 0 "--> Ejecutando script: $(basename "$script")"
                 init "$script"
-                # Ejecutar el script manteniendo el control de errores del padre
                 bash "$script"
             fi
         done
     else
-        prettyprint 1 "No se encontraron scripts .sh en la etapa $(basename "$stage_dir")"
+        prettyprint 2 "Error crítico: No se encontraron scripts .sh obligatorios en la etapa $(basename "$stage_dir")"
+        exit 1
     fi
 }
 
@@ -206,18 +179,14 @@ function load_requirements() {
         exit 1
     fi
 
-    # Limpiar el array por si se recarga
     REQUIREMENTS=()
 
     while IFS='=' read -r key value; do
-        # Ignorar comentarios y líneas vacías
         [[ -z "$key" || "$key" =~ ^# ]] && continue
         
-        # Eliminar espacios en blanco alrededor de las claves y valores
         key="$(echo "$key" | xargs)"
         value="$(echo "$value" | xargs)"
         
-        # Remover comillas dobles o simples si las tuviera
         value="${value%\"}"
         value="${value#\"}"
         value="${value%\'}"
