@@ -17,11 +17,16 @@ El framework de staging bootstrap soporta nativamente las siguientes distribucio
 Para desplegar y configurar todo el proyecto desde cero utilizando exclusivamente el conjunto de scripts de orquestación:
 
 1. **Clonar el repositorio**:
-`git clone [https://github.com/CarlosConLetraC/pomodoro-plus-plus.git](https://www.google.com/search?q=https://github.com/CarlosConLetraC/pomodoro-plus-plus.git)`
-`cd pomodoro-plus-plus`
+```bash
+git clone https://github.com/CarlosConLetraC/pomodoro-plus-plus.git
+cd pomodoro-plus-plus
+```
+
 2. **Ejecutar el orquestador principal (`setup.sh`)**:
 Este script detecta tu distribución compatible, lee los parámetros globales desde `install/requirements.conf`, configura las herramientas del sistema operativo mediante `pacman`, instala Node.js de forma aislada en `.node_env`, descarga los binarios de Electron y prepara las dependencias de empaquetado.
-`./setup.sh`
+```bash
+./setup.sh
+```
 
 ---
 
@@ -30,14 +35,18 @@ Este script detecta tu distribución compatible, lee los parámetros globales de
 *Nota importante:* El script `init.sh` **no** realiza tareas de instalación ni compilación. Únicamente se utiliza una vez que el proyecto ya se encuentra configurado para levantar la aplicación en modo de desarrollo local, inyectando las rutas del `PATH` y ejecutando Electron directamente sobre los fuentes modulares de `src/`.
 
 Para probar la aplicación en tu entorno gráfico:
-`./init.sh`
+```bash
+./init.sh
+```
 
 ---
 
 ## 3. Compilación del Entregable Final (`build.sh`)
 
 Una vez realizadas las pruebas necesarias, para empaquetar la aplicación en un formato portable autónomo (sin dependencias de FUSE) listo para producción y GitHub Releases:
-`./build.sh`
+```bash
+./build.sh
+```
 Esto generará la estructura compilada y el paquete comprimido final dentro de la carpeta `dist/`.
 
 ---
