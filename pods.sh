@@ -2,6 +2,8 @@
 set -euo pipefail
 source common.sh
 
+# NOTA: si desea usar las funciones auxiliares de podman, utilice `common.sh`.
+
 BASE_PATH=$PWD
 get_os_version
 prettyprint 0 "Detected OS: ${OS_INFO[NAME]} (${OS_INFO[ID]})"
