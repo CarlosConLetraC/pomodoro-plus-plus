@@ -241,3 +241,65 @@ pomodoro-plus-plus/
 * Genera una compilación portable descomprimida (`dist/linux-unpacked/`) que no requiere librerías de compatibilidad obsoletas de FUSE (`libfuse.so.2`).
 
 * Empaqueta el ejecutable final y sus recursos en un archivo `.tar.gz` listo para ser distribuido en GitHub Releases.
+
+---
+
+## 6. Diagrama de Arquitectura Global del Sistema (Mermaid)
+
+El siguiente diagrama detalla de forma exhaustiva las interrelaciones entre el sistema host, los contenedores Podman, el pipeline de staging bootstrap por etapas, los scripts de ejecución y el empaquetado final:
+
+```mermaid
+graph TD
+    subgraph Host ["Sistema Host & Contenedores"]
+        OS[CachyOS / Arch Linux / Ubuntu]
+        Pods[pods.sh / dockers/*.dockerfile]
+        PodRun[podmanrun / podmanbuild]
+    end
+
+    subgraph Core ["Núcleo de Orquestación"]
+        Setup[setup.sh]
+        Common[common.sh]
+        Reqs[install/requirements.conf]
+    end
+
+    subgraph Staging ["Pipeline de Staging Bootstrap (install/)"]
+        S00["Etapa 00: base.sh<br/>(Pacman/Apt, curl, unzip)"]
+        S01N["Etapa 01: node.sh<br/>(.node_env local aislado)"]
+        S01C["Etapa 01: chromium.sh<br/>(Depot Tools & Chromium src)"]
+        S02E["Etapa 02: electron.sh<br/>(Auto-genera package.json & Electron)"]
+    end
+
+    subgraph Source ["Código Fuente Modular (src/)"]
+        SrcJS[index.js - Proceso Principal]
+        SrcHTML[index.html - Vista Renderer]
+        SrcCSS[index.css - Estilos CSS]
+    end
+
+    subgraph Execution ["Fase de Ejecución y Producción"]
+        Init[init.sh - Desarrollo Local]
+        Build[build.sh - Empaquetado]
+        Dist["dist/<br/>- linux-unpacked/<br/>- pomodoro-plus-plus-linux-x64.tar.gz"]
+    end
+
+    %% Relaciones de flujo
+    OS --> Pods --> PodRun --> Setup
+    OS --> Setup
+    Setup --> Common --> Reqs
+    Setup --> S00 --> S01N & S01C --> S02E
+    S02E --> SrcJS & SrcHTML & SrcCSS
+    
+    %% Flujo de desarrollo
+    SrcJS & SrcHTML & SrcCSS -.->|Inyecta PATH node_env| Init
+    Init -->|Prueba gráfica nativa| OS
+
+    %% Flujo de compilación
+    SrcJS & SrcHTML & SrcCSS -.->|Compila vía electron-builder| Build
+    Build --> Dist
+    Dist -->|Publicación directa| GitHubReleases[(GitHub Releases)]
+
+    style Host fill:#f9f,stroke:#333,stroke-width:2px
+    style Core fill:#bbf,stroke:#333,stroke-width:2px
+    style Staging fill:#ff9,stroke:#333,stroke-width:2px
+    style Source fill:#fbb,stroke:#333,stroke-width:2px
+    style Execution fill:#bfb,stroke:#333,stroke-width:2px
+```
