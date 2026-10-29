@@ -6,7 +6,6 @@ Aplicación de escritorio modular basada en Electron para la gestión del tiempo
 
 El framework de staging bootstrap soporta nativamente las siguientes distribuciones:
 
-* **<OS>** (Entorno principal)
 * **Arch Linux**
 * **Ubuntu**
 
