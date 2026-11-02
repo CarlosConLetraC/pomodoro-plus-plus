@@ -1,0 +1,48 @@
+head{
+    margin-top: 0px;
+}
+body{
+    
+    background-image: url(https://images.hdqwalls.com/wallpapers/background-geometric-triangle-pattern-3n.jpg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+}
+
+h2{
+    margin-bottom: 0px;
+    color: brown;
+    font-family: 'Jost', 'Montserrat', 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode';
+    font-size: 40px; 
+}
+
+p{
+    margin-top:0px;
+    font-family: "Jost";
+    width: 900px;
+}
+
+li{
+    font-family: "Jost";
+}
+
+#p1{
+    color:cornflowerblue;
+    background: linear-gradient(to left, rgb(2, 145, 255), white);
+    width: 600px;
+    text-align: center;
+
+}
+#capy{
+    transform: rotate(10deg);
+}
+.LV{
+    color: green;
+}
+.LE{
+    color: darkblue;
+}
+button:hover{
+    color: red;
+}

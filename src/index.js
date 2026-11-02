@@ -1,10 +1,15 @@
-const { app, BrowserWindow } = require('electron');
+// src/index.js
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const { isOnIgnoredList } = require('./ignoreKeybinds'); // Importado de forma segura en el proceso principal
 
 const createWindow = () => {
     const mainWindow = new BrowserWindow({
-        width: 1080,
-        height: 800,
+        width: 1565,
+        height: 880,
+        autoHideMenuBar: true,
+        roundedCorners: true,
+        frame: false,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
@@ -12,6 +17,30 @@ const createWindow = () => {
     });
 
     mainWindow.loadFile(path.join(__dirname, 'index.html'));
+
+    // Filtro de seguridad: Interceptar y bloquear atajos colisionantes
+    mainWindow.webContents.on('before-input-event', (event, input) => {
+        if (isOnIgnoredList(input)) {
+            event.preventDefault();
+        }
+    });
+
+    // Manejadores IPC para la barra de título personalizada
+    ipcMain.on('window-minimize', () => {
+        mainWindow.minimize();
+    });
+
+    ipcMain.on('window-maximize', () => {
+        if (mainWindow.isMaximized()) {
+            mainWindow.unmaximize();
+        } else {
+            mainWindow.maximize();
+        }
+    });
+
+    ipcMain.on('window-close', () => {
+        mainWindow.close();
+    });
 };
 
 app.whenReady().then(() => {

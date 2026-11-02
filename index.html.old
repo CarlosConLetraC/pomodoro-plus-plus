@@ -1,0 +1,65 @@
+    <div>
+        <button>Modo Claro / Obscuro</button>
+        <button>Ajustes</button>
+        <button>Estadísticas</button>
+        <button>Modo Ventana</button>
+    </div>
+    <div>
+        <p>**sección de presets**</p>
+        <button>Pomodoro (25:00)</button>
+        <button>Crear nuevo preset</button>
+    </div>
+    <div>
+        <p>Ciclo #...</p>
+        <h1>25:00</h1>
+    </div>
+    <div>
+        <button>Comenzar</button>
+        <button>Reanudar</button>
+        <button>Pausar</button>
+        <button>Cancelar</button>
+    </div>
+    <div>
+        <h1>Ajustes</h1>
+        <div>
+            <button>Temporizadores</button>
+            <div>
+                <button>Añadir nuevo preset</button>
+                <p>Trabajo</p>
+                <input type="number"></input>
+                <p>Descanso corto</p>
+                <input type="number"></input>
+                <p>Descanso largo</p>
+                <input type="number"></input>
+                <p>Cantidad de ciclos</p>
+                <input type="number"></input>
+                <p>Ciclos adapatativos</p>
+                <input type="checkbox"></input">
+                <p>Nombre del preset</p>
+                <input type="text"></input>
+                <button>Guardar</button>
+            </div> 
+            <button>Alarma</button>
+            <div>
+                <p>Sonido de alarma</p>
+                <button>Sonido 1</button>
+                <button>Sonido 2</button>
+                <button>Sonido 3</button>
+                <p>Volumen de alarma</p>
+                <input type="range"></input>
+            </div>
+        </div>
+    </div>
+    <div>
+        <button>Hoy</button>
+        <button>Semana</button>
+        <button>Mes</button>
+        <button>Año</button>
+        <button>Historico</button>
+        <p>Resumen</p>
+        <p>Horas trabajando</p>
+        <p>0h</p>
+        <p>Horas descanzando</p>
+        <p>0h</p>
+        <p>Gráfico</p>
+    </div>

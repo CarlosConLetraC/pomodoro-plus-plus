@@ -1,48 +1,54 @@
-head{
-    margin-top: 0px;
-}
-body{
-    
-    background-image: url(https://images.hdqwalls.com/wallpapers/background-geometric-triangle-pattern-3n.jpg);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center;
-    background-size: cover;
+/* Reseteo global de márgenes y paddings para evitar espacios en blanco */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    font-family: 'Jost', sans-serif;
 }
 
-h2{
-    margin-bottom: 0px;
-    color: brown;
-    font-family: 'Jost', 'Montserrat', 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode';
-    font-size: 40px; 
+#root-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 32px; /* Altura compacta ideal para una barra de título */
+    background-color: #AAAAAA; /* El tono principal de la barra */
+    -webkit-app-region: drag; /* Permite arrastrar la ventana desde la barra */
+    user-select: none;
+    color: #fff;
+    width: 100%;
 }
 
-p{
-    margin-top:0px;
-    font-family: "Jost";
-    width: 900px;
+/* Botones de control de ventana */
+.topbar-controls {
+    display: flex;
+    height: 100%;
+    -webkit-app-region: no-drag; /* Impide que el arrastre afecte los clics en los botones */
 }
 
-li{
-    font-family: "Jost";
+.topbar-controls button {
+    background: transparent;
+    border: none;
+    color: #fff;
+    height: 100%;
+    padding: 0 24px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s;
 }
 
-#p1{
-    color:cornflowerblue;
-    background: linear-gradient(to left, rgb(2, 145, 255), white);
-    width: 600px;
-    text-align: center;
+.topbar-controls button:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    color: #ff5f56; /* Estilo sutil al pasar el cursor */
+}
 
-}
-#capy{
-    transform: rotate(10deg);
-}
-.LV{
-    color: green;
-}
-.LE{
-    color: darkblue;
-}
-button:hover{
-    color: red;
+/* Estilo para el título central de la barra */
+.topbar-title {
+    font-size: 13px;
+    opacity: 0.8;
+    padding-left: 10px;
 }
