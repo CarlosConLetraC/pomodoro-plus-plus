@@ -5,3 +5,4 @@ package.json
 chromium_src
 depot_tools
 dist
+*.old
