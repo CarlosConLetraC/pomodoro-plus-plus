@@ -2,11 +2,12 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { isOnIgnoredList } = require('./ignoreKeybinds'); // Importado de forma segura en el proceso principal
+const OFFSET = 0.7;
 
 const createWindow = () => {
     const mainWindow = new BrowserWindow({
-        width: 1565,
-        height: 880,
+        width: 1565 * OFFSET,
+        height: 800 * OFFSET,
         autoHideMenuBar: true,
         roundedCorners: true,
         frame: false,

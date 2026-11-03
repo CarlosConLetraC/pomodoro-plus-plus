@@ -1,4 +1,81 @@
 <div class="vista-config">
-    <h2>Configuraciones</h2>
-    <p>Personaliza los intervalos de trabajo y descanso.</p>
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+        <button id="btn-back-inicio">←</button>
+        <h2>⚙️ Configuración / Ajustes</h2>
+    </div>
+
+    <!-- Pestañas internas para alternar entre Presets, Ciclos adaptativos y Alarma -->
+    <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <button id="tab-presets-btn">Presets</button>
+        <button id="tab-adaptativos-btn">Ciclos Adaptativos</button>
+        <button id="tab-alarma-btn">Alarma</button>
+    </div>
+
+    <!-- SECCIÓN 7: Presets -->
+    <div id="section-presets" class="config-section">
+        <h3>/ Presets</h3>
+        <fieldset style="margin-bottom: 15px;">
+            <legend>Añadir nuevo preset / Editar preset</legend>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <label>Concentración: <input type="text" value="25:00 min" style="width: 80px;"></label>
+                <label>Desc. corto: <input type="text" value="5:00 min" style="width: 80px;"></label>
+                <label>Desc. largo: <input type="text" value="15:00 min" style="width: 80px;"></label>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                <label>Cantidad de ciclos: <input type="number" value="4" style="width: 50px;"></label>
+                <label><input type="checkbox"> Ciclos adaptativos</label>
+            </div>
+            <div>
+                <input type="text" placeholder="Nombre del nuevo preset" style="width: 200px; margin-right: 10px;">
+                <button>Guardar</button>
+                <button>Cancelar</button>
+            </div>
+        </fieldset>
+
+        <div>
+            <h4>Mis presets</h4>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                <span>Preset Default</span> <button>🗑️</button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <span>Preset 1</span> <button>🗑️</button>
+            </div>
+            <button>+ Nuevo preset</button>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 8: Ciclos adaptativos -->
+    <div id="section-adaptativos" class="config-section" style="display: none;">
+        <h3>Ciclos adaptativos</h3>
+        <p>Ajusta la duración de los ciclos según tu rendimiento real: ciclos completados y pausas.</p>
+        <div style="margin: 15px 0;">
+            <label><input type="checkbox" checked> Activar ciclos adaptativos</label>
+        </div>
+        <div>
+            <label>Sensibilidad: </label>
+            <button>Baja</button>
+            <button style="background: #ccc;">Media</button>
+            <button>Alta</button>
+        </div>
+        <div style="margin-top: 20px; border: 1px dashed #666; padding: 10px;">
+            <strong>Reglas de ajuste: por definir con el equipo</strong>
+            <p>Ej.: ciclos seguidos sin pausas → ampliar concentración</p>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 9: Alarma -->
+    <div id="section-alarma" class="config-section" style="display: none;">
+        <h3>/ Alarma</h3>
+        <div style="margin-bottom: 20px;">
+            <p>Sonido de alarma</p>
+            <button>Sonido 1</button>
+            <button>Sonido 2</button>
+            <button>Sonido 3</button>
+            <span>🔔</span>
+        </div>
+        <div>
+            <p>Volumen de la alarma</p>
+            <input type="range" min="0" max="100" value="100" style="width: 300px;"> 100%
+        </div>
+    </div>
 </div>

@@ -13,7 +13,7 @@ html, body {
     align-items: center;
     justify-content: space-between;
     height: 32px; /* Altura compacta ideal para una barra de título */
-    background-color: #AAAAAA; /* El tono principal de la barra */
+    background-color: #FFFFFF; /* El tono principal de la barra */
     -webkit-app-region: drag; /* Permite arrastrar la ventana desde la barra */
     user-select: none;
     color: #fff;
@@ -30,7 +30,7 @@ html, body {
 .topbar-controls button {
     background: transparent;
     border: none;
-    color: #fff;
+    color: #333;
     height: 100%;
     padding: 0 24px;
     cursor: pointer;
@@ -42,8 +42,8 @@ html, body {
 }
 
 .topbar-controls button:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-    color: #ff5f56; /* Estilo sutil al pasar el cursor */
+    background-color: rgba(0, 0, 0, 0.25);
+    color: #ff0000; /* Estilo sutil al pasar el cursor */
 }
 
 /* Estilo para el título central de la barra */

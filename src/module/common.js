@@ -1,4 +1,6 @@
 // src/module/common.js
+const { initTimerView } = require('./inicio');
+const { initConfigView } = require('./configuraciones');
 
 /**
  * Carga de forma asíncrona un archivo HTML de precontenido dentro de un contenedor del DOM.
@@ -15,6 +17,13 @@ async function cargarVistaPrecontenido(nombreVista, contenedorId = "root-main") 
         
         if (container) {
             container.innerHTML = html;
+
+            // Inicializar la lógica modular según la vista cargada
+            if (nombreVista === 'inicio') {
+                initTimerView();
+            } else if (nombreVista === 'configuraciones') {
+                initConfigView();
+            }
         } else {
             console.error(`Contenedor con ID '${contenedorId}' no encontrado en el DOM.`);
         }
@@ -23,7 +32,6 @@ async function cargarVistaPrecontenido(nombreVista, contenedorId = "root-main") 
     }
 }
 
-// Exportar las funciones para reutilizarlas en otros módulos mediante require()
 module.exports = {
     cargarVistaPrecontenido
 };

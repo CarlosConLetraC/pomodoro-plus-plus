@@ -6,7 +6,7 @@ const ignoredShortcuts = [
     'Ctrl+R',
     'Ctrl+T',
     'Ctrl+N',
-    'Ctrl+Shift+I',
+    //'Ctrl+Shift+I', // comentado por ahora, para saber si ocurre algo en el frontend. Descomentar al momento de hacer build & release.
     'Ctrl+A',
     'Ctrl+Shift+N',
     'F12'

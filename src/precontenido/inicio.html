@@ -1,4 +1,91 @@
 <div class="vista-inicio">
-    <h2>Inicio</h2>
-    <p id="p1">Bienvenido a Pomodoro++. Gestiona tu tiempo de forma eficiente.</p>
+    <!-- Controles superiores de la vista (Modo oscuro, Estadísticas, Configuración/Presets/Alarma) -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <button id="btn-toggle-dark" title="Modo oscuro/claro">🌙</button>
+            <button id="btn-nav-stats" title="Estadísticas">📊</button>
+        </div>
+        <div style="position: relative;">
+            <button id="btn-settings-gear" title="Ajustes">⚙️</button>
+            <!-- Menú desplegable simulado para Presets y Alarma -->
+            <div id="settings-menu" style="display: none; position: absolute; right: 0; background: #fff; border: 1px solid #ccc; padding: 10px; z-index: 10;">
+                <button id="menu-presets" style="display: block; width: 100%; margin-bottom: 5px;">Presets</button>
+                <button id="menu-alarma" style="display: block; width: 100%;">Alarma</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ESTADO 1: Principal en Reposo / ESTADO 6: Modo Oscuro -->
+    <div id="state-reposo" class="timer-state">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <span>Pomodoro 25:00</span>
+            <button id="btn-add-preset">+</button>
+            <button id="btn-goto-presets">Presets</button>
+            <button id="btn-goto-alarma">Alarma</button>
+        </div>
+        <h1 style="font-size: 60px; text-align: center;" id="display-time">25:00</h1>
+        <div style="text-align: center;">
+            <button id="btn-iniciar" style="padding: 10px 30px; font-size: 16px;">Iniciar</button>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+            <span>Ciclo # - de 4</span>
+            <button id="btn-modo-ventana">Modo ventana</button>
+        </div>
+    </div>
+
+    <!-- ESTADO 2: Principal en Curso (Trabajo) -->
+    <div id="state-curso" class="timer-state" style="display: none;">
+        <h3>Ciclo # 1 de 4 • Trabajo</h3>
+        <h1 style="font-size: 60px; text-align: center;">24:59</h1>
+        <div style="text-align: center; display: flex; justify-content: center; gap: 10px;">
+            <button id="btn-pausar">Pausar</button>
+            <button id="btn-reiniciar-curso">Reiniciar</button>
+            <button id="btn-cancelar-curso">Cancelar</button>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+            <button id="btn-modo-ventana-2">Modo ventana</button>
+        </div>
+    </div>
+
+    <!-- ESTADO 3: Principal en Pausa -->
+    <div id="state-pausa" class="timer-state" style="display: none;">
+        <h3>Ciclo # 1 de 4 • EN PAUSA</h3>
+        <h1 style="font-size: 60px; text-align: center;">12:34</h1>
+        <div style="text-align: center; display: flex; justify-content: center; gap: 10px;">
+            <button id="btn-reanudar">Reanudar</button>
+            <button id="btn-reiniciar-pausa">Reiniciar</button>
+            <button id="btn-cancelar-pausa">Cancelar</button>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+            <button id="btn-modo-ventana-3">Modo ventana</button>
+        </div>
+    </div>
+
+    <!-- ESTADO 4: Descanso (corto / largo) -->
+    <div id="state-descanso" class="timer-state" style="display: none;">
+        <h3>Descanso corto • Ciclo 1 de 4</h3>
+        <h1 style="font-size: 60px; text-align: center;">05:00</h1>
+        <div style="text-align: center;">
+            <span>● ◯ ◯ ◯</span>
+        </div>
+        <div style="text-align: center; display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+            <button id="btn-pausar-descanso">Pausar</button>
+            <button id="btn-saltar-descanso">Saltar descanso</button>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+            <span>Tras el ciclo 4 -> descanso largo (15:00)</span>
+            <button id="btn-modo-ventana-4">Modo ventana</button>
+        </div>
+    </div>
+
+    <!-- ESTADO 5: Alarma - Fin de ciclo (Modal) -->
+    <div id="modal-alarma" style="display: none; border: 2px solid #333; padding: 20px; background: rgba(255,255,255,0.95); position: absolute; top: 30%; left: 20%; right: 20%; text-align: center;">
+        <h3>¡Fin del ciclo de trabajo!</h3>
+        <p>Ciclo 1 de 4 completado. Toca descansar 5:00</p>
+        <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
+            <button id="btn-iniciar-descanso">Iniciar descanso</button>
+            <button id="btn-silenciar-alarma">Silenciar</button>
+        </div>
+        <small style="display: block; margin-top: 10px;">Sonido y volumen: Ajustes > Alarma</small>
+    </div>
 </div>
