@@ -1,4 +1,4 @@
-/* Reseteo global de márgenes y paddings para evitar espacios en blanco */
+/* Reseteo global de márgenes y paddings */
 html, body {
     margin: 0;
     padding: 0;
@@ -6,33 +6,73 @@ html, body {
     height: 100%;
     overflow-x: hidden;
     font-family: 'Jost', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* === TEMA CLARO (light-mode) === */
+body.light-mode {
+    background-color: #FFFFFF;
+    color: #000000;
+}
+
+body.light-mode #root-header {
+    background-color: #FFFFFF;
+    color: #000000;
+}
+
+body.light-mode .topbar-controls button {
+    color: #111111;
+}
+
+body.light-mode .topbar-controls button:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Hover oscuro sobre fondo claro */
+    color: #ff5f56;
+}
+
+/* === TEMA OSCURO (dark-mode) === */
+body.dark-mode {
+    background-color: #010101;
+    color: #FFFFFF;
+}
+
+body.dark-mode #root-header {
+    background-color: #010101;
+    color: #FFFFFF;
+}
+
+body.dark-mode .topbar-controls button {
+    color: #EEEEEE;
+}
+
+body.dark-mode .topbar-controls button:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Hover claro invertido sobre fondo oscuro */
+    color: #ff5f56;
+}
+
+/* Estructura común del Topbar */
 #root-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 32px; /* Altura compacta ideal para una barra de título */
-    background-color: #FFFFFF; /* El tono principal de la barra */
-    -webkit-app-region: drag; /* Permite arrastrar la ventana desde la barra */
+    height: 36px;
+    -webkit-app-region: drag;
     user-select: none;
-    color: #000;
     width: 100%;
-    position: relative; /* Clave para permitir el posicionamiento absoluto del título */
+    position: relative;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Botones de control de ventana */
 .topbar-controls {
     display: flex;
     height: 100%;
-    margin-left: auto; /* Asegura que los controles queden anclados a la derecha */
-    -webkit-app-region: no-drag; /* Impide que el arrastre afecte los clics en los botones */
+    margin-left: auto;
+    -webkit-app-region: no-drag;
 }
 
 .topbar-controls button {
     background: transparent;
     border: none;
-    color: #222;
     height: 100%;
     padding: 0 24px;
     cursor: pointer;
@@ -40,20 +80,16 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease-in, color 0.2s ease;
 }
 
-.topbar-controls button:hover {
-    background-color: rgba(0, 0, 0, 0.1); /* Tono oscuro sutil y visible sobre fondo blanco */
-    color: #ff5f56; /* Estilo al pasar el cursor */
-}
-
-/* Estilo para el título central de la barra (Estilo Ghostty) */
+/* Título central de la barra */
 .topbar-title {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
     font-size: 13px;
+    font-family: monospace;
     opacity: 0.8;
-    pointer-events: none; /* Permite arrastrar la ventana haciendo clic sobre el texto */
+    pointer-events: none;
 }

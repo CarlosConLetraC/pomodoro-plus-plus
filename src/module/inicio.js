@@ -103,14 +103,22 @@ function initTimerView() {
         });
     }
 
-    // Modo oscuro / claro toggle
-    let darkMode = false;
+    // Establecer un tema por defecto si no existe
+    if (!document.body.classList.contains('light-mode') && !document.body.classList.contains('dark-mode')) {
+        document.body.classList.add('light-mode');
+    }
+
+    // Toggle explícito entre light-mode y dark-mode
     const btnToggleDark = document.getElementById('btn-toggle-dark');
     if (btnToggleDark) {
         btnToggleDark.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.body.style.background = darkMode ? '#030303' : '#fff';
-            document.body.style.color = darkMode ? '#fff' : '#000';
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+            } else {
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+            }
         });
     }
 }
