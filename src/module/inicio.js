@@ -109,7 +109,7 @@ function initTimerView() {
     if (btnToggleDark) {
         btnToggleDark.addEventListener('click', () => {
             darkMode = !darkMode;
-            document.body.style.background = darkMode ? '#0F0F0F' : '#fff';
+            document.body.style.background = darkMode ? '#030303' : '#fff';
             document.body.style.color = darkMode ? '#fff' : '#000';
         });
     }
