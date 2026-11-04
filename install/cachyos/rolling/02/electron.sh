@@ -41,7 +41,7 @@ if [ ! -f "package.json" ]; then
   "name": "pomodoro-plus-plus",
   "version": "1.0.0",
   "description": "Pomodoro Plus Plus App",
-  "main": "src/index.js",
+  "main": "src/backend/index.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --linux dir"
@@ -121,13 +121,18 @@ if [ ! -d "src" ]; then
     exit 1
 fi
 
-if [ ! -f "src/index.js" ]; then
-    prettyprint 2 "Error crítico: No se encontró 'src/index.js' (proceso principal de Electron requerido)."
+if [ ! -d "src/backend" ]; then
+    prettyprint 2 "Error crítico: El directorio 'src/backend/' no existe. Debes proveer la estructura modular de su aplicación."
     exit 1
 fi
 
-if [ ! -f "src/index.html" ]; then
-    prettyprint 2 "Error crítico: No se encontró 'src/index.html' (vista de la aplicación requerida)."
+if [ ! -f "src/backend/index.js" ]; then
+    prettyprint 2 "Error crítico: No se encontró 'src/backend/index.js' (proceso principal de Electron requerido)."
+    exit 1
+fi
+
+if [ ! -f "src/backend/index.html" ]; then
+    prettyprint 2 "Error crítico: No se encontró 'src/backend/index.html' (vista de la aplicación requerida)."
     exit 1
 fi
 
@@ -135,7 +140,7 @@ fi
 node -e '
 const fs = require("fs");
 const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
-pkg.main = "src/index.js";
+pkg.main = "src/backend/index.js";
 pkg.scripts = pkg.scripts || {};
 if (!pkg.scripts.start) {
     pkg.scripts.start = "electron .";

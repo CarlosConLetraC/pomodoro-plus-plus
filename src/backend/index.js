@@ -17,7 +17,7 @@ const createWindow = () => {
         }
     });
 
-    mainWindow.loadFile(path.join(__dirname, 'index.html'));
+    mainWindow.loadFile(path.join(__dirname, '../frontend/index.html'));
 
     // Filtro de seguridad: Interceptar y bloquear atajos colisionantes
     mainWindow.webContents.on('before-input-event', (event, input) => {
