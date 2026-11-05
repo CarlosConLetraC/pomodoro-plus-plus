@@ -38,7 +38,7 @@ public:
 private:
     sqlite3* db = nullptr;
 
-    // Método para ejecutar sentencias DDL/DML (CREATE, INSERT, UPDATE, DELETE)
+    // Método para ejecutar sentencias DDL/DML (CREATE, INSERT, UPDATE, DELETE) :: operaciones CRUD
     Napi::Value Exec(const Napi::CallbackInfo& info) {
         Napi::Env env = info.Env();
         std::string sql = info[0].As<Napi::String>().Utf8Value();
