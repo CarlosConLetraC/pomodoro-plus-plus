@@ -12,6 +12,10 @@ if [ ! -f "$PROJECT_ROOT/node_modules/.bin/electron-builder" ]; then
     exit 1
 fi
 
+# Compilar TypeScript en el backend antes de empaquetar para producción
+prettyprint 0 "Compilando fuentes de TypeScript del backend. . ."
+npx tsc -p "$PROJECT_ROOT/src/backend/tsconfig.json"
+
 # Generar directorio portable nativo
 prettyprint 0 "Compilando estructura portable con electron-builder. . ."
 "$PROJECT_ROOT/node_modules/.bin/electron-builder" --linux dir
@@ -32,5 +36,5 @@ EOF
     cd "$PROJECT_ROOT"
 fi
 
-prettyprint 0 "¡Empaquetado completado con éxito!"
+prettyprint 0 "Empaquetado completado con éxito."
 prettyprint 0 "Entregable listo en 'dist/pomodoro-plus-plus-linux-x64.tar.gz'"

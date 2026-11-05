@@ -19,7 +19,11 @@ if [ ! -f "$PROJECT_ROOT/node_modules/.bin/electron" ]; then
     exit 1
 fi
 
+# Compilar TypeScript en el backend antes de arrancar
+prettyprint 0 "Compilando fuentes de TypeScript del backend. . ."
+npx tsc -p "$PROJECT_ROOT/src/backend/tsconfig.json"
+
 prettyprint 0 "Lanzando la aplicación Electron. . ."
 
-# Ejecutar Electron pasando el directorio actual (.) como app root
+# Ejecutar Electron pasando el directorio raíz del proyecto
 "$PROJECT_ROOT/node_modules/.bin/electron" "$PROJECT_ROOT" "$@"

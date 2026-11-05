@@ -10,6 +10,7 @@ if [ -z "${REQUIREMENTS[ELECTRON_VERSION]:-}" ]; then
 fi
 
 ELEC_VER="${REQUIREMENTS[ELECTRON_VERSION]}"
+ARCH="${REQUIREMENTS[ARCH]}"
 
 prettyprint 0 "Instalando dependencias de sistema para Electron (pacman). . ."
 sudo pacman -Syu --noconfirm --needed \
@@ -81,7 +82,7 @@ if [ ! -f "$ELECTRON_DIST_DIR/electron" ]; then
     prettyprint 1 "Descargando binario oficial de Electron v${ELEC_VER} manualmente. . ."
     
     mkdir -p "$ELECTRON_DIST_DIR"
-    ELEC_URL="https://github.com/electron/electron/releases/download/v${ELEC_VER}/electron-v${ELEC_VER}-linux-x64.zip"
+    ELEC_URL="https://github.com/electron/electron/releases/download/v${ELEC_VER}/electron-v${ELEC_VER}-linux-${ARCH}.zip"
     
     prettyprint 0 "Descargando desde: $ELEC_URL"
     curl -fL "$ELEC_URL" -o /tmp/electron.zip
@@ -131,8 +132,8 @@ if [ ! -f "src/backend/index.js" ]; then
     exit 1
 fi
 
-if [ ! -f "src/backend/index.html" ]; then
-    prettyprint 2 "Error crítico: No se encontró 'src/backend/index.html' (vista de la aplicación requerida)."
+if [ ! -f "src/frontend/index.html" ]; then
+    prettyprint 2 "Error crítico: No se encontró 'src/frontend/index.html' (vista de la aplicación requerida)."
     exit 1
 fi
 

@@ -6,3 +6,7 @@ chromium_src
 depot_tools
 dist
 *.old
+src/backend/native/sqlite-src
+src/backend/native/build
+src/backend/db_controller.js
+src/backend/native/*tar.gz

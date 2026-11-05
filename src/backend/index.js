@@ -4,6 +4,8 @@ const path = require('path');
 const { isOnIgnoredList } = require('./ignoreKeybinds'); // Importado de forma segura en el proceso principal
 const OFFSET = 0.7;
 
+require('./db_controller');
+
 const createWindow = () => {
     const mainWindow = new BrowserWindow({
         width: 1565 * OFFSET,
