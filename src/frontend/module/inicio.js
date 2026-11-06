@@ -1,4 +1,5 @@
-// src/module/inicio.js
+// src/frontend/module/inicio.js
+const { ipcRenderer } = require('electron');
 
 function initTimerView() {
     const stateReposo = document.getElementById('state-reposo');
@@ -97,16 +98,46 @@ function initTimerView() {
             settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
         });
 
-        // Ocultar menú al hacer clic fuera
         document.addEventListener('click', () => {
             settingsMenu.style.display = 'none';
         });
     }
 
-    // Establecer un tema por defecto si no existe
-    if (!document.body.classList.contains('light-mode') && !document.body.classList.contains('dark-mode')) {
-        document.body.classList.add('light-mode');
-    }
+    // Sincronizar el tema persistido desde la base de datos / archivo JSON
+    ipcRenderer.invoke('get-current-theme').then((mode) => {
+        if (mode === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.body.classList.remove('light-mode');
+        } else {
+            document.body.classList.add('light-mode');
+            document.body.classList.remove('dark-mode');
+        }
+    }).catch(err => console.error('Error al obtener tema:', err));
+
+    // Sincronizar información de la sesión y configuración desde los JSON
+    ipcRenderer.invoke('get-last-session').then((session) => {
+        const cycleText = document.querySelector('#state-reposo span');
+        if (cycleText) {
+            cycleText.textContent = `Pomodoro ${session.mode || 'Trabajo'}`;
+        }
+        
+        const cycleCounters = document.querySelectorAll('.timer-state h3, span');
+        cycleCounters.forEach(el => {
+            if (el.textContent.includes('Ciclo #')) {
+                el.textContent = `Ciclo # ${session.lastCycle} de ${session.totalCycles} • ${session.mode}`;
+            }
+        });
+    }).catch(err => console.error('Error al cargar la sesión:', err));
+
+    ipcRenderer.invoke('get-pomodoro-config').then((config) => {
+        if (config && config.popup) {
+            // Ejemplo: actualizar visualmente los minutos predeterminados si existen en config
+            const displayTime = document.getElementById('display-time');
+            if (displayTime && config.defaultMinutes) {
+                displayTime.textContent = `${config.defaultMinutes}:00`;
+            }
+        }
+    }).catch(err => console.error('Error al cargar pomodoro-config:', err));
 
     // Toggle explícito entre light-mode y dark-mode
     const btnToggleDark = document.getElementById('btn-toggle-dark');
@@ -115,9 +146,11 @@ function initTimerView() {
             if (document.body.classList.contains('dark-mode')) {
                 document.body.classList.remove('dark-mode');
                 document.body.classList.add('light-mode');
+                ipcRenderer.send('set-theme', 'light');
             } else {
                 document.body.classList.remove('light-mode');
                 document.body.classList.add('dark-mode');
+                ipcRenderer.send('set-theme', 'dark');
             }
         });
     }

@@ -197,3 +197,26 @@ function load_requirements() {
 
     prettyprint 0 "Requerimientos leídos exitosamente desde $req_file"
 }
+
+function createPomodoroConfig() {
+    local lua_bin="luajit"
+    if ! command -v luajit &> /dev/null; then
+        lua_bin="lua"
+    fi
+
+    if ! command -v "$lua_bin" &> /dev/null; then
+        prettyprint 2 "Error crítico: No se encontró un intérprete de Lua o LuaJIT en el sistema."
+        return 1
+    fi
+
+    # El uso de '--' detiene el análisis de opciones de LuaJIT, permitiendo pasar '-add' sin errores
+    "$lua_bin" -l config_manager -e "api.run(unpack(arg, 0))" -- "$@"
+    local exit_code=$?
+
+    if [ $exit_code -eq 1 ]; then
+        prettyprint 2 "createPomodoroConfig: argumento \`${1:-}\` inválido."
+        return 1
+    elif [ $exit_code -ne 0 ]; then
+        return 1
+    fi
+}

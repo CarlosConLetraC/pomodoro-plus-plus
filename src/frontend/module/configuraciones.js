@@ -1,4 +1,5 @@
 // src/module/configuraciones.js
+const { ipcRenderer } = require('electron');
 
 function initConfigView() {
     const secPresets = document.getElementById('section-presets');
@@ -35,6 +36,20 @@ function initConfigView() {
             secAlarma.style.display = 'block';
         });
     }
+
+    // Cargar y enlazar datos reales desde last-session-info.json y pomodoro-config.json
+    ipcRenderer.invoke('get-last-session').then((session) => {
+        if (!session) return;
+        const inputCiclos = document.getElementById('input-total-cycles');
+        if (inputCiclos) {
+            inputCiclos.value = session.totalCycles || 4;
+        }
+    }).catch(err => console.error('Error al cargar sesión en config:', err));
+
+    ipcRenderer.invoke('get-pomodoro-config').then((config) => {
+        if (!config || !config.popup) return;
+        // Aquí puedes enlazar más propiedades de configuración si lo requieres
+    }).catch(err => console.error('Error al cargar pomodoro-config:', err));
 }
 
 module.exports = { initConfigView };
