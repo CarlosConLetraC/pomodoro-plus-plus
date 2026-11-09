@@ -6,12 +6,20 @@ const os = require('os');
 const { isOnIgnoredList } = require('./ignoreKeybinds');
 const OFFSET = 0.7;
 
+// Obligatorio en CachyOS/Wayland: Desactiva la GPU externa para evitar el exit_code=139
+app.disableHardwareAcceleration();
+
+// Forzar X11 para garantizar el comportamiento del topmost y el popup
+app.commandLine.appendSwitch('ozone-platform', 'x11');
+app.commandLine.appendSwitch('no-sandbox');
+app.commandLine.appendSwitch('disable-setuid-sandbox');
+
 require('./db_controller');
 
 let mainWindow = null;
 let popupWindow = null;
 
-// Ruta estricta sincronizada con el motor de configuración Lua (~/.config/pomodoro-plus-plus/config/)
+// Ruta estricta sincronizada con el motor de configuración Lua (~/.config/pomodoro-plus-plus/config/). . .
 const getConfigDir = () => {
     return path.join(os.homedir(), '.config', 'pomodoro-plus-plus', 'config');
 };
@@ -126,19 +134,29 @@ const initialBgColor = currentTheme === 'dark' ? '#010101' : '#FFFFFF';
 
 const createWindow = () => {
     mainWindow = new BrowserWindow({
-        width: 1565 * OFFSET,
-        height: 800 * OFFSET,
+        width: Math.round(1265 * OFFSET),
+        height: Math.round(800 * OFFSET),
         autoHideMenuBar: true,
         roundedCorners: true,
         frame: false,
+        skipTaskbar: false, // Asegura visibilidad en el Alt + Tab y barra de tareas
         backgroundColor: initialBgColor,
+        show: false, // 3. CLAVE: Evita la pantalla en blanco manteniendo la ventana oculta mientras renderiza
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
         }
     });
 
-    mainWindow.loadFile(path.join(__dirname, '../frontend/index.html'));
+    const indexPath = path.join(__dirname, '../frontend/index.html');
+    mainWindow.loadFile(indexPath).catch(err => {
+        console.error("Error crítico al cargar index.html:", err);
+    });
+
+    // 4. Muestra la ventana fluidamente solo cuando el DOM y los estilos están listos
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.show();
+    });
 
     mainWindow.webContents.on('before-input-event', (event, input) => {
         if (isOnIgnoredList(input)) {
@@ -201,20 +219,27 @@ ipcMain.on('open-popup-window', () => {
         autoHideMenuBar: true,
         frame: false,
         alwaysOnTop: topmost,
-        type: 'utility', // 'utility' permite que el gestor de ventanas de Linux respete mejor el modo flotante
+        type: 'utility', 
         resizable: false,
+        show: false, // 1. Creamos la ventana oculta para evitar parpadeos y asegurar el mapeo correcto
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
         }
     });
 
-    if (topmost) {
-        popupWindow.setAlwaysOnTop(true, 'floating', 1);
-        popupWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-    }
-
     popupWindow.loadFile(path.join(__dirname, '../frontend/precontenido/popup.html'));
+
+    // 2. Aplicamos las propiedades de capas y visibilidad justo cuando la ventana está lista
+    popupWindow.once('ready-to-show', () => {
+        if (topmost) {
+            // 'floating' es el nivel compatible estándar en Linux; evitamos 'screen-saver'
+            popupWindow.setAlwaysOnTop(true, 'floating');
+            popupWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+        }
+        popupWindow.show();
+        console.log("AlwaysOnTop activo y ventana desplegada.");
+    });
 
     if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.hide();

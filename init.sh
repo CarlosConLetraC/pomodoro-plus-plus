@@ -23,7 +23,12 @@ fi
 prettyprint 0 "Compilando fuentes de TypeScript del backend. . ."
 npx tsc -p "$PROJECT_ROOT/src/backend/tsconfig.json"
 
-prettyprint 0 "Lanzando la aplicación Electron. . ."
+# prettyprint 0 "Lanzando la aplicación Electron. . ."
+# 
+# # Ejecutar Electron pasando el directorio raíz del proyecto
+# "$PROJECT_ROOT/node_modules/.bin/electron" "$PROJECT_ROOT" "$@"
 
-# Ejecutar Electron pasando el directorio raíz del proyecto
-"$PROJECT_ROOT/node_modules/.bin/electron" "$PROJECT_ROOT" "$@"
+prettyprint 0 "Lanzando la aplicación Electron (modo X11/Ozone). . ."
+
+# Ejecutar Electron pasando el directorio raíz y forzando ozone-platform=x11
+"$PROJECT_ROOT/node_modules/.bin/electron" "$PROJECT_ROOT" --ozone-platform=x11 "$@"

@@ -61,6 +61,9 @@ if [ ! -f "package.json" ]; then
         "src/**/*",
         "package.json"
     ],
+    "asarUnpack": [
+        "**/*.node"
+    ],
     "linux": {
         "target": ["dir"],
         "category": "Utility"

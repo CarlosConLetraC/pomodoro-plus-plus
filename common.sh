@@ -220,3 +220,32 @@ function createPomodoroConfig() {
         return 1
     fi
 }
+
+declare -A INSTALL_CONFIG
+
+function load_install_config() {
+    local config_file="install.conf"
+    
+    if [ ! -f "$config_file" ]; then
+        prettyprint 2 "Error crítico: No se encontró el archivo de configuración en $config_file"
+        exit 1
+    fi
+
+    INSTALL_CONFIG=()
+
+    while IFS='=' read -r key value; do
+        [[ -z "$key" || "$key" =~ ^# ]] && continue
+        
+        key="$(echo "$key" | xargs)"
+        value="$(echo "$value" | xargs)"
+        
+        value="${value%\"}"
+        value="${value#\"}"
+        value="${value%\'}"
+        value="${value#\'}"
+        
+        INSTALL_CONFIG["$key"]="$value"
+    done < "$config_file"
+
+    prettyprint 0 "Configuración de instalación leída exitosamente desde $config_file"
+}

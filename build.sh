@@ -12,24 +12,14 @@ if [ ! -f "$PROJECT_ROOT/node_modules/.bin/electron-builder" ]; then
     exit 1
 fi
 
-# Compilar TypeScript en el backend antes de empaquetar para producción
 prettyprint 0 "Compilando fuentes de TypeScript del backend. . ."
 npx tsc -p "$PROJECT_ROOT/src/backend/tsconfig.json"
 
-# Generar directorio portable nativo
 prettyprint 0 "Compilando estructura portable con electron-builder. . ."
 "$PROJECT_ROOT/node_modules/.bin/electron-builder" --linux dir
 
 UNPACKED_DIR="$PROJECT_ROOT/dist/linux-unpacked"
 if [ -d "$UNPACKED_DIR" ]; then
-    prettyprint 0 "Generando wrapper de lanzamiento portable. . ."
-    cat << 'EOF' > "$UNPACKED_DIR/run.sh"
-#!/usr/bin/env bash
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-"$HERE/pomodoro-plus-plus" "$@"
-EOF
-    chmod +x "$UNPACKED_DIR/run.sh"
-
     prettyprint 0 "Comprimiendo paquete portable en .tar.gz. . ."
     cd "$PROJECT_ROOT/dist"
     tar -czf "pomodoro-plus-plus-linux-x64.tar.gz" linux-unpacked
