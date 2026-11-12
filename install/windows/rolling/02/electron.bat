@@ -22,7 +22,7 @@ if not exist "package.json" (
     (
     echo {
     echo   "name": "pomodoro-plus-plus",
-    echo   "version": "1.0.0",
+    echo   "version": "0.0.2",
     echo   "description": "Una aplicación de Pomodoro avanzada construida con Electron",
     echo   "main": "src/backend/index.js",
     echo   "scripts": {
