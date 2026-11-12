@@ -14,9 +14,7 @@
         "SQLITE_THREADSAFE=1",
         "SQLITE_ENABLE_FTS5=1",
         "NAPI_DISABLE_CPP_EXCEPTIONS"
-      ],
-      "cflags!": [ "-fno-exceptions" ],
-      "cflags_cc!": [ "-fno-exceptions" ]
+      ]
     }
   ]
 }
