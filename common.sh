@@ -22,7 +22,33 @@ function prettyprint() {
     esac
 }
 
+declare -A CLI_ARGS
+
+function parse_args() {
+    for arg in "$@"; do
+        if [[ "$arg" == *=* ]]; then
+            local key="${arg%%=*}"
+            local val="${arg#*=}"
+            CLI_ARGS["$key"]="$val"
+        fi
+    done
+}
+
 function get_os_version() {
+    # Si se especificó el SO por argumentos, tiene máxima prioridad.
+    if [ -n "${CLI_ARGS[os]:-}" ]; then
+        OS_INFO["ID"]="${CLI_ARGS[os]}"
+        if [ -n "${CLI_ARGS[os_version_id]:-}" ]; then
+            OS_INFO["VERSION_ID"]="${CLI_ARGS[os_version_id]}"
+        else
+            OS_INFO["VERSION_ID"]="rolling"
+        fi
+        OS_INFO["NAME"]="${CLI_ARGS[os]}"
+        prettyprint 0 "SO forzado por argumentos CLI: ${OS_INFO[NAME]} (${OS_INFO[ID]} version ${OS_INFO[VERSION_ID]})"
+        return 0
+    fi
+
+    # Comportamiento original si no se pasan argumentos
     if [ ! -f /etc/os-release ]; then
         prettyprint 2 "Error crítico: No se encontró /etc/os-release en el sistema."
         exit 1
@@ -58,6 +84,11 @@ function resolve_stage_dir() {
     
     local version="${OS_INFO[VERSION_ID]}"
     local target_dir="install/$id/$version/$stage_dir_name"
+
+    # Si se pasó una arquitectura explícita por argumento, se puede registrar
+    if [ -n "${CLI_ARGS[arch]:-}" ]; then
+        export TARGET_ARCH="${CLI_ARGS[arch]}"
+    fi
 
     if [ ! -d "$target_dir" ]; then
         prettyprint 2 "Error crítico: No existe la ruta de etapas estricta para $id ($version) en $target_dir"

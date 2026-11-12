@@ -2,13 +2,19 @@
 set -euo pipefail
 source common.sh
 
+# 1. Analizar argumentos pasados por línea de comandos (ej: os=debian os_version_id=13 arch=x64)
+parse_args "$@"
+
 BASE_PATH=$PWD
 
-# Cargar información del OS actual
+# Cargar información del OS (ahora respeta los argumentos CLI si se proporcionaron)
 get_os_version
 
-prettyprint 0 "Detected OS: ${OS_INFO[NAME]} (${OS_INFO[ID]})"
+prettyprint 0 "Target OS: ${OS_INFO[NAME]} (${OS_INFO[ID]})"
 prettyprint 0 "Version: ${OS_INFO[VERSION_ID]}"
+if [ -n "${CLI_ARGS[arch]:-}" ]; then
+    prettyprint 0 "Architecture Target: ${CLI_ARGS[arch]}"
+fi
 
 # Resolver la ruta raíz de las etapas para esta distribución/versión
 first_stage_path=$(resolve_stage_dir 0)

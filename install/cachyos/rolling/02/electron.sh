@@ -36,7 +36,7 @@ prettyprint 0 "Instalando localmente electron@${ELEC_VER} en el proyecto. . ."
 
 # Generación automática de package.json si no existe previamente
 if [ ! -f "package.json" ]; then
-    prettyprint 1 "No se encontró package.json. Generando package.json base automáticamente..."
+    prettyprint 1 "No se encontró package.json. Generando package.json base automáticamente. . ."
     cat << 'EOF' > package.json
 {
   "name": "pomodoro-plus-plus",
