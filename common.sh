@@ -280,3 +280,89 @@ function load_install_config() {
 
     prettyprint 0 "Configuración de instalación leída exitosamente desde $config_file"
 }
+
+declare -A DEPLOY_PATHS
+
+function load_paths() {
+    local base_dir="${BASE_PATH:-$PWD}"
+    local paths_file="$base_dir/install/paths.conf"
+    if [ ! -f "$paths_file" ]; then
+        prettyprint 2 "Error crítico: No se encontró el archivo de rutas en $paths_file"
+        exit 1
+    fi
+
+    # Cargar las variables del archivo de configuración
+    source "$paths_file"
+
+    # Normalizar el identificador del OS a las categorías de paths.conf
+    local raw_id="${OS_INFO[ID]:-linux}"
+    local os_prefix="LINUX"
+
+    case "$raw_id" in
+        arch|cachyos|debian|ubuntu)
+            os_prefix="LINUX"
+            ;;
+        win|windows|msdos)
+            os_prefix="WIN"
+            ;;
+        macos|darwin)
+            os_prefix="MACOS"
+            ;;
+        *)
+            os_prefix="LINUX"
+            ;;
+    esac
+
+    # Construir nombres de variables dinámicamente de forma segura
+    local var_app="${os_prefix}_APP_DIR"
+    local var_config="${os_prefix}_CONFIG_DIR"
+    local var_bin="${os_prefix}_BIN_DIR"
+    local var_dist="${os_prefix}_DIST_DIR"
+
+    # Poblar el arreglo asociativo con valores por defecto de respaldo
+    DEPLOY_PATHS["APP_DIR"]="${!var_app:-$HOME/pomodoro-plus-plus}"
+    DEPLOY_PATHS["CONFIG_DIR"]="${!var_config:-$HOME/.pomodoro}"
+    DEPLOY_PATHS["BIN_DIR"]="${!var_bin:-$HOME/bin}"
+    DEPLOY_PATHS["DIST_DIR"]="${!var_dist:-dist}"
+
+    prettyprint 0 "Rutas de despliegue cargadas para el perfil: $os_prefix"
+}
+
+CURRENT_OS=""
+IS_LINUX=false
+IS_WSL=false
+IS_MACOS=false
+IS_WIN=false
+
+function detect_environment() {
+    local kernel
+    kernel="$(uname -s)"
+
+    case "$kernel" in
+        Linux*)
+            CURRENT_OS="linux"
+            IS_LINUX=true
+            
+            # Detección fina de WSL (Windows Subsystem for Linux)
+            if grep -qi microsoft /proc/version 2>/dev/null || [ -n "${WSL_DISTRO_NAME:-}" ]; then
+                CURRENT_OS="wsl"
+                IS_WSL=true
+                IS_LINUX=false # necesario para no mezclar el bootstrap nativo de linux con WSL.
+            fi
+            ;;
+        Darwin*)
+            CURRENT_OS="macos"
+            IS_MACOS=true
+            ;;
+        CYGWIN*|MINGW*|MSYS*)
+            CURRENT_OS="windows"
+            IS_WIN=true
+            ;;
+        *)
+            CURRENT_OS="unknown"
+            ;;
+    esac
+}
+
+# Ejecutar la detección al cargar common.sh
+detect_environment
