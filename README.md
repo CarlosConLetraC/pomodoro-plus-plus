@@ -1,305 +1,235 @@
 # Pomodoro Plus Plus
 
-Aplicación de escritorio modular basada en Electron para la gestión del tiempo y productividad, diseñada con un entorno de desarrollo portable y automatizado para Linux.
+Aplicación de escritorio modular basada en Electron para la gestión del tiempo y productividad, diseñada con un entorno de desarrollo portable y automatizado tanto para **Linux** como para **Windows**.
 
-## Sistemas Operativos Compatibles (Linux)
+## Sistemas Operativos Compatibles
 
-El framework de staging bootstrap soporta nativamente las siguientes distribuciones:
+El framework de staging bootstrap soporta nativamente las siguientes plataformas:
 
-* **Arch Linux**
+* **Windows** (vía scripts `.bat` y aprovisionamiento automático con `winget`)
+* **Arch Linux** / **CachyOS**
 * **Ubuntu**
+* **Debian**
 
 ---
 
 ## 1. Instalación y Staging Bootstrap (Configuración y Dependencias)
 
-Para desplegar y configurar todo el proyecto desde cero utilizando exclusivamente el conjunto de scripts de orquestación:
+Para desplegar y configurar todo el proyecto desde cero utilizando el conjunto de scripts de orquestación:
 
+### En Windows:
+1. **Clonar el repositorio**:
+```cmd
+git clone https://github.com/CarlosConLetraC/pomodoro-plus-plus.git
+cd pomodoro-plus-plus
+```
+
+2. **Ejecutar el orquestador principal (`setup.bat`)**:
+Este script detecta los requisitos del sistema, instala o verifica herramientas base de compilación en segundo plano (como Python y MSVC Build Tools mediante `winget`), despliega un entorno Node.js aislado localmente en `.node_env`, instala Electron, TypeScript y compila los módulos nativos (`sqlite_native.node`).
+```cmd
+setup.bat
+```
+
+### En Linux (Entorno Host o Podman):
 1. **Clonar el repositorio**:
 ```bash
 git clone https://github.com/CarlosConLetraC/pomodoro-plus-plus.git
 cd pomodoro-plus-plus
 ```
 
-2. **Iniciar contenedor con podman**
-Se recomienda utilizar podman para evitar instalar dependencias temporales en su sistema principal. Para ello se debe instalar podman en caso de no tenerlo en el sistema.
+2. **Iniciar contenedor con Podman (Opcional / Recomendado)**:
+Se recomienda utilizar Podman para evitar instalar dependencias temporales en su sistema principal.
 
-* Arch Linux (o derivados):
+* Arch Linux / CachyOS:
 ```bash
 sudo pacman -S podman --noconfirm
 ```
 
-* Debian (o derivados):
+* Debian / Ubuntu:
 ```bash
-sudo apt-get update
-sudo apt install -y podman
+sudo apt-get update && sudo apt install -y podman
 ```
 
-Una vez hecho esto, configure los contenedores podman mediante el siguiente comando:
-```bash
-./pods.sh dockerfile/<contenedor deseado>.dockerfile
-
-```
-
-Si desea configurar TODOS los contenedores predefinidos. Simplemente haga:
+Configurar e iniciar el contenedor:
 ```bash
 ./pods.sh
-```
-
-Hecho lo anterio, inicie el contenedor podman utilizando el siguiente commando:
-```bash
 source common.sh
-podmanrun podman_<contenedor deseado>
-# <contenedor deseado>: distribución linux deseada (actualmente únicamente se puede modular mediante cachyos).
-# Por lo que necesita ejecutar: podmanrun podman_cachyos
+podmanrun podman_cachyos
 ```
 
 3. **Ejecutar el orquestador principal (`setup.sh`)**:
-Este script detecta tu distribución compatible, lee los parámetros globales desde `install/requirements.conf`, configura las herramientas del sistema operativo mediante `pacman`|`apt`, instala Node.js de forma aislada en `.node_env`, descarga los binarios de Electron y prepara las dependencias de empaquetado.
+Detecta la distribución compatible, lee los parámetros desde `install/requirements.conf`, configura las herramientas del sistema operativo, instala Node.js de forma aislada en `.node_env`, descarga Electron y compila dependencias nativas (SQLite y LuaJIT).
 ```bash
-# NOTA: asegurar estar dentro del contenedor podman antes de ejecutar el setup.
 ./setup.sh
 ```
 
 ---
 
-## 2. Desarrollo Local y Pruebas (`init.sh`)
+## 2. Desarrollo Local y Pruebas (`init`)
 
-*Nota importante:* El script `init.sh` **no** realiza tareas de instalación ni compilación. Únicamente se utiliza una vez que el proyecto ya se encuentra configurado para levantar la aplicación en modo de desarrollo local, inyectando las rutas del `PATH` y ejecutando Electron directamente sobre los fuentes modulares de `src/`.
+*Nota importante:* El comando `init` (**`init.bat`** en Windows o **`init.sh`** en Linux) compila automáticamente las fuentes de TypeScript del backend y lanza la aplicación en modo de desarrollo local sobre los fuentes modulares de `src/`.
 
-Para probar la aplicación en tu entorno gráfico:
-```bash
-./init.sh
-```
-
----
-
-## 3. Compilación del Entregable Final (`build.sh`)
-
-Una vez realizadas las pruebas necesarias, para empaquetar la aplicación en un formato portable autónomo (sin dependencias de FUSE) listo para producción y GitHub Releases:
-```bash
-./build.sh
-```
-Esto generará la estructura compilada y el paquete comprimido final dentro de la carpeta `dist/`.
+Para probar la aplicación en tu entorno:
+* En Windows:
+  ```cmd
+  init
+  ```
+* En Linux:
+  ```bash
+  ./init.sh
+  ```
 
 ---
 
-## 4. Descripción Detallada de cada Script (`.sh`)
+## 3. Compilación del Entregable Final (`build` y `wizard`)
 
-* **`setup.sh`**: Orquestador principal del bootstrap. Detecta el sistema operativo del host, resuelve el directorio de etapas correspondiente y ejecuta secuencialmente los scripts numéricos de configuración.
+Una vez realizadas las pruebas necesarias, para empaquetar la aplicación en un formato portable autónomo listo para producción y GitHub Releases:
 
+* En Windows (genera el paquete portable y el instalador NSIS):
+  ```cmd
+  build
+  ```
+  *(Opcional)* Para generar directamente el instalador interactivo por asistencias (Wizard NSIS):
+  ```cmd
+  wizard
+  ```
+* En Linux:
+  ```bash
+  ./build.sh
+  ```
+Esto generará la estructura compilada y el paquete final dentro de la carpeta `dist/`.
 
-* **`init.sh`**: Lanzador de pruebas y desarrollo local. Carga el entorno aislado de Node (`.node_env/bin`) e inicia la aplicación Electron apuntando a los archivos fuente modulares, requiriendo que el proyecto haya sido previamente inicializado.
+---
 
+## 4. Descripción Detallada de los Scripts de Orquestación
 
-* **`build.sh`**: Script de compilación y empaquetado. Utiliza `electron-builder` para generar la distribución portable (`dir`) y empaqueta el resultado en un archivo `.tar.gz` optimizado.
-* **`common.sh`**: Librería central de funciones compartidas. Proporciona registro con marcas de tiempo (`prettyprint`), detección automática del sistema operativo (`get_os_version`), resolución de rutas y utilidades para contenedores Podman (`podmanbuild`, `podmanrun`).
+### Scripts de Windows (`.bat`):
+* **`setup.bat`**: Orquestador principal en Windows. Lee las especificaciones de `install/requirements.conf` y ejecuta secuencialmente las etapas de configuración (`base.bat`, `node.bat`, `electron.bat`, `sqlite.bat`).
+* **`init.bat`**: Carga el entorno local portable (`.node_env`), valida dependencias, compila TypeScript y arranca Electron para vista previa.
+* **`build.bat`**: Ejecuta la compilación de TypeScript y empaqueta el proyecto mediante `electron-builder` generando el instalador para Windows.
+* **`wizard.bat`**: Genera el instalador interactivo NSIS optimizado para Windows.
 
+### Scripts de Linux (`.sh`) y Herramientas Auxiliares:
+* **`setup.sh`**: Orquestador principal del bootstrap para entornos Unix.
+* **`init.sh`**: Lanzador de pruebas y desarrollo local e inyección de variables de ruta para X11/Ozone.
+* **`build.sh`**: Script de compilación y empaquetado portable para distribuciones Linux (sin dependencias de FUSE).
+* **`common.sh`**: Librería central de funciones compartidas (`prettyprint`, `get_os_version`, utilidades Podman).
+* **`pods.sh`**: Utilidad de gestión para limpiar y reconstruir imágenes de Podman a partir de `dockers/`.
+* **`install.sh` / `uninstall.sh`**: Scripts de instalación y desinstalación a nivel de sistema.
+* **`config_manager.lua` / `json.lua`**: Módulos en LuaJIT para la gestión de configuraciones y serialización JSON.
 
-* **`pods.sh`**: Utilidad de contenedores. Limpia contenedores detenidos y reconstruye de manera limpia todas las imágenes de Podman a partir de los archivos `.dockerfile` ubicados en `dockers/`.
+### 4.1. Staging Bootstrap (`install/`)
+* **`install/<OS>/<VERSION>/00/base.(sh|bat)`**: Etapa inicial. Sincroniza gestores de paquetes (`pacman`/`apt`) o configura herramientas base en Windows mediante `winget` (Python 3 y Visual Studio Build Tools C++).
+* **`install/<OS>/<VERSION>/00/luajit.sh`**: Aprovisionamiento de LuaJIT en entornos Linux compatibles (CachyOS / Debian).
+* **`install/<OS>/<VERSION>/01/node.(sh|bat)`**: Descarga e instala Node.js y npm de forma aislada en `.node_env`.
+* **`install/<OS>/<VERSION>/02/electron.(sh|bat)`**: Auto-genera `package.json`, valida la estructura modular en `src/` e instala Electron, `electron-builder` y TypeScript.
+* **`install/<OS>/<VERSION>/02/sqlite.(sh|bat)`**: Descarga el código fuente de SQLite y compila el addon nativo en C++ (`sqlite_native.node`) mediante `node-gyp`.
 
-## 4.1. Staging Bootstrap
+---
 
-* **`install/<OS>/<VERSION>/00/base.sh`**: Script de la etapa inicial. Configura los parámetros de `pacman.conf` para entornos rootless y asegura la instalación de herramientas compartidas esenciales como `unzip` y `curl`.
-* **`install/<OS>/<VERSION>/01/chromium.sh`**: Descarga chromium y lo compila desde código fuente (versión específica en `install/requirements.conf`).
-* **`install/<OS>/<VERSION>/01/node.sh`**: Descarga nodejs, npm y npx y configura dependencias temporalmente (versión específica en `install/requirements.conf`)
-* **`install/<OS>/<VERSION>/02/electron.sh`**: Script de la etapa de Electron. Instala las dependencias gráficas necesarias mediante `pacman`, aprovisiona Electron localmente, valida de forma estricta la estructura modular en `src/` (`index.js`, `index.html`, etc.) y configura `electron-builder`.
+## 5. Arquitectura Detallada del Sistema
 
-# 5 Arquitectura Detallada del Sistema
-#### 1. Estructura de Árbol de Archivos (File Tree Hierarchy)
-```
+### 1. Estructura de Árbol de Archivos
+```text
 pomodoro-plus-plus/
-├── setup.sh                     # Entrypoint de orquestación de staging bootstrap
-├── init.sh                      # Lanzador de entorno de desarrollo local (requiere setup previo)
-├── build.sh                     # Pipeline de empaquetado y distribución portable
-├── common.sh                    # Librería de funciones globales, utilidades de OS y Podman
-├── pods.sh                     # Gestor de compilación e imágenes de Podman
-├── install/
-│   ├── requirements.conf        # Configuración centralizada de versiones (Node, Electron, Chromium)
-│   ├── archlinux/rolling/       # Pipeline de etapas para Arch Linux
-│   │   ├── 00/base.sh           # Configuración de pacman y herramientas base
-│   │   ├── 01/node.sh           # Aprovisionamiento local de Node.js runtime (.node_env)
-│   │   ├── 01/chromium.sh       # Preparación de dependencias/fuentes de Chromium
-│   │   └── 02/electron.sh       # Auto-generación de package.json, Electron y electron-builder
-│   ├── cachyos/rolling/         # Pipeline de etapas para CachyOS (idéntico a Arch Linux)
-│   │   ├── 00/base.sh
-│   │   ├── 01/node.sh
-│   │   ├── 01/chromium.sh
-│   │   └── 02/electron.sh
-│   └── ubuntu/22.04/            # Pipeline de etapas para Ubuntu
-│       ├── 00/base.sh           # Configuración base de apt
-│       ├── 01/node.sh
-│       ├── 01/chromium.sh
-│       └── 02/electron.sh
+├── build.bat / build.sh         # Pipelines de empaquetado final
+├── init.bat / init.sh           # Lanzadores de desarrollo local (Preview)
+├── setup.bat / setup.sh         # Orquestadores de staging bootstrap
+├── wizard.bat                   # Generador de instalador NSIS (Windows)
+├── install.sh / uninstall.sh    # Scripts de instalación en sistema
+├── common.sh                    # Librería compartida de funciones core
+├── pods.sh                      # Gestor de contenedores Podman
+├── config_manager.lua           # Gestor de configuración en Lua
+├── json.lua                     # Parser/serializador JSON en Lua
+├── install.conf                 # Configuración general de instalación
 ├── dockers/                     # Entornos de prueba aislados en contenedores
 │   ├── archlinux.dockerfile
 │   ├── cachyos.dockerfile
+│   ├── debian13.dockerfile
 │   └── ubuntu_22.04.dockerfile
+├── install/
+│   ├── paths.conf               # Definición de rutas del proyecto
+│   ├── requirements.conf        # Versiones globales (Node, Electron, SQLite)
+│   ├── windows/rolling/         # Etapas de aprovisionamiento en Windows (.bat)
+│   │   ├── 00/base.bat
+│   │   ├── 01/node.bat
+│   │   └── 02/{electron.bat, sqlite.bat}
+│   ├── archlinux/rolling/       # Etapas para Arch Linux (.sh)
+│   ├── cachyos/rolling/         # Etapas para CachyOS (.sh)
+│   ├── debian/13/               # Etapas para Debian 13 (.sh)
+│   └── ubuntu/22.04/            # Etapas para Ubuntu 22.04 (.sh)
 └── src/                         # Código fuente modular de la aplicación
-    ├── index.js                 # Proceso principal (Main Process - Electron)
-    ├── index.html               # Proceso de renderizado (Renderer View)
-    └── index.css                # Hoja de estilos del Renderer
+    ├── backend/                 # Proceso principal, TypeScript y addons nativos
+    │   ├── db_controller.ts
+    │   ├── ignoreKeybinds.js
+    │   ├── index.js
+    │   ├── tsconfig.json
+    │   └── native/              # Addon C++ para SQLite
+    │       ├── binding.gyp
+    │       └── sqlite_addon.cpp
+    └── frontend/                # Interfaz visual (Renderer View)
+        ├── assets/icon.png
+        ├── index.css
+        ├── index.html
+        ├── module/              # Lógica modular JS (common, inicio, navigation, topbar, configuraciones)
+        └── precontenido/        # Vistas parciales HTML/CSS (inicio, estadisticas, configuraciones, popup, topbar)
 ```
 
-#### 2. Flujo de Ejecución y Dependencias de Componentes
-```
-+-----------------------------------------------------------------------------------+
-|                                  SISTEMA HOST                                     |
-|  (CachyOS / Arch Linux / Ubuntu / Contenedor Podman activado mediante pods.sh)    |
-+-----------------------------------------------------------------------------------+
-                                          |
-                                          v
-                              +-----------------------+
-                              |       setup.sh        |
-                              +-----------------------+
-                                          |
-                                          v  (Carga dependencias e inspecciona OS)
-                              +-----------------------+
-                              |       common.sh       |
-                              +-----------------------+
-                                          |
-                                          v  (Lee configuraciones globales)
-                              +-----------------------+
-                              |   requirements.conf   |
-                              +-----------------------+
-                                          |
-                +-------------------------+-------------------------+
-                |                         |                         |
-                v                         v                         v
-       [install/cachyos/]        [install/archlinux/]       [install/ubuntu/]
-                |                         |                         |
-                +-------------------------+-------------------------+
-                                          |
-                                          v
-      +------------------------------------------------------------------------+
-      |                      EJECUCIÓN POR ETAPAS (STAGING)                    |
-      |                                                                        |
-      |  +------------------------------------------------------------------+  |
-      |  | Etapa 00: base.sh                                                |  |
-      |  | - Sincroniza gestores de paquetes (pacman / apt).                |  |
-      |  | - Instala dependencias base (curl, unzip, etc.).                 |  |
-      |  +------------------------------------------------------------------+  |
-      |                                   |                                    |
-      |                                   v                                    |
-      |  +------------------------------------------------------------------+  |
-      |  | Etapa 01: node.sh                                                |  |
-      |  | - Descarga e instala Node.js aislado en .node_env/ (estilo .venv)|  |
-      |  | Etapa 01: chromium.sh                                            |  |
-      |  | - Prepara herramientas/dependencias de compilación para Chromium |  |
-      |  +------------------------------------------------------------------+  |
-      |                                   |                                    |
-      |                                   v                                    |
-      |  +------------------------------------------------------------------+  |
-      |  | Etapa 02: electron.sh                                            |  |
-      |  | - Auto-genera package.json con scripts y campos de build         |  |
-      |  | - Instala Electron y electron-builder localmente                 |  |
-      |  | - Valida integridad de archivos requeridos en src/               |  |
-      |  +------------------------------------------------------------------+  |
-      +------------------------------------------------------------------------+
-                                          |
-                        +-----------------+-----------------+
-                        |                                   |
-                        v                                   v
-             [Desarrollo / Pruebas]                 [Compilación Final]
-                        |                                   |
-                        v                                   v
-             +--------------------+               +-------------------+
-             |      init.sh       |               |     build.sh      |
-             +--------------------+               +-------------------+
-                        |                                   |
-                        v                                   v
-             Inyecta .node_env/bin en PATH       Ejecuta electron-builder --linux dir
-             y arranca Electron sobre src/       Genera dist/linux-unpacked/
-                                                            |
-                                                            v
-                                                  Comprime artefacto en:
-                                                  dist/pomodoro-plus-plus-linux-x64.tar.gz
-```
-
-#### 3. Descripción de Módulos y Arquitectura Técnica
-##### 1. **Orquestación de Staging Automático (`setup.sh`, `common.sh`, `install/`)**:
-* **Detección Dinámica del SO**: `common.sh` lee `/etc/os-release` mediante la función `get_os_version()` y resuelve automáticamente la ruta de ejecución según la distribución (`install/{id}/{version}/{stage}`).
-
-* **Aislamiento de Dependencias**: Node.js se descarga en formato binario y se desempaqueta en el directorio local `.node_env/`, garantizando cero contaminación global de paquetes en el sistema host.
-
-* **Aprovisionamiento Autónomo**: `electron.sh` comprueba la existencia de `package.json`. Si el repositorio se clona limpio, genera automáticamente el manifiesto base con los scripts de ejecución y las directivas de compilación de `electron-builder`.
-
-
-##### 2. **Capa de Aplicación y Fuentes (`src/`)**:
-* **Main Process**: `src/index.js` actúa como el proceso principal que gestiona el ciclo de vida de las ventanas y eventos del sistema en Electron.
-
-* **Renderer View**: `src/index.html` e `src/index.css` conforman el proceso de renderizado visual de la interfaz de usuario.
-
-
-##### 3. **Entorno de Pruebas en Contenedores (`pods.sh`, `dockers/`)**:
-* **Pruebas Multi-Distribución**: Permite compilar y validar la instalación en imágenes Podman aisladas (`cachyos.dockerfile`, `archlinux.dockerfile`, `ubuntu_22.04.dockerfile`).
-
-* **Aislamiento Rootless**: Mantiene el montaje transparente del espacio de trabajo del usuario mediante utilidades `podmanrun` y `podmanbuild`.
-
-
-##### 4. **Pipeline de Despliegue y Distribución (`build.sh`)**:
-* Genera una compilación portable descomprimida (`dist/linux-unpacked/`) que no requiere librerías de compatibilidad obsoletas de FUSE (`libfuse.so.2`).
-
-* Empaqueta el ejecutable final y sus recursos en un archivo `.tar.gz` listo para ser distribuido en GitHub Releases.
+### 2. Descripción de Módulos Técnicos
+1. **Orquestación Multiplataforma (`setup.bat` / `setup.sh`)**:
+   * **Aislamiento Total**: Node.js se despliega en `.node_env/` sin alterar instalaciones globales del sistema.
+   * **Aprovisionamiento Autónomo**: Genera dinámicamente `package.json` y compila código nativo en C++ (`sqlite_addon.cpp`) usando MSVC en Windows o GCC/Clang en Linux.
+2. **Capa de Backend (`src/backend/`)**:
+   * **Main Process**: `index.js` e `ignoreKeybinds.js` gestionan las ventanas y atajos del sistema en Electron.
+   * **Persistencia Nativa**: `db_controller.ts` se comunica con el módulo nativo `sqlite_native.node` compilado mediante `node-gyp`.
+3. **Capa de Frontend (`src/frontend/`)**:
+   * Arquitectura modular basada en vistas parciales (`precontenido/`) y controladores independientes (`module/`) renderizados sobre `index.html`.
 
 ---
 
 ## 6. Diagrama de Arquitectura Global del Sistema (Mermaid)
 
-El siguiente diagrama detalla de forma exhaustiva las interrelaciones entre el sistema host, los contenedores Podman, el pipeline de staging bootstrap por etapas, los scripts de ejecución y el empaquetado final:
-
 ```mermaid
 graph TD
-    subgraph Host ["Sistema Host & Contenedores"]
-        OS[CachyOS / Arch Linux / Ubuntu]
-        Pods[pods.sh / dockers/*.dockerfile]
-        PodRun[podmanrun / podmanbuild]
+    subgraph Environments ["Plataformas de Ejecución"]
+        Win[Windows: .bat + winget]
+        Linux[Linux: .sh + Podman]
     end
 
-    subgraph Core ["Núcleo de Orquestación"]
-        Setup[setup.sh]
-        Common[common.sh]
-        Reqs[install/requirements.conf]
+    subgraph Core ["Orquestador Central"]
+        Setup[setup.bat / setup.sh]
+        Reqs[install/requirements.conf & paths.conf]
     end
 
-    subgraph Staging ["Pipeline de Staging Bootstrap (install/)"]
-        S00["Etapa 00: base.sh<br/>(Pacman/Apt, curl, unzip)"]
-        S01N["Etapa 01: node.sh<br/>(.node_env local aislado)"]
-        S01C["Etapa 01: chromium.sh<br/>(Depot Tools & Chromium src)"]
-        S02E["Etapa 02: electron.sh<br/>(Auto-genera package.json & Electron)"]
+    subgraph Staging ["Staging Bootstrap por Etapas"]
+        S00["Etapa 00: Base & Herramientas<br/>(MSVC / Pacman / Apt / LuaJIT)"]
+        S01["Etapa 01: Node.js Aislado (.node_env)"]
+        S02["Etapa 02: Electron, TypeScript &<br/>Módulos Nativos C++ (SQLite)"]
     end
 
-    subgraph Source ["Código Fuente Modular (src/)"]
-        SrcJS[index.js - Proceso Principal]
-        SrcHTML[index.html - Vista Renderer]
-        SrcCSS[index.css - Estilos CSS]
+    subgraph AppSource ["Código Fuente Modular (src/)"]
+        Backend[Backend: index.js, db_controller.ts & sqlite_addon.cpp]
+        Frontend[Frontend: index.html, module/ & precontenido/]
     end
 
-    subgraph Execution ["Fase de Ejecución y Producción"]
-        Init[init.sh - Desarrollo Local]
-        Build[build.sh - Empaquetado]
-        Dist["dist/<br/>- linux-unpacked/<br/>- pomodoro-plus-plus-linux-x64.tar.gz"]
+    subgraph Execution ["Desarrollo & Producción"]
+        Init[init.bat / init.sh - Preview Local]
+        Build[build.bat / build.sh / wizard.bat]
+        Dist["dist/ (Instalador NSIS / Binarios Portables)"]
     end
 
-    %% Relaciones de flujo
-    OS --> Pods --> PodRun --> Setup
-    OS --> Setup
-    Setup --> Common --> Reqs
-    Setup --> S00 --> S01N & S01C --> S02E
-    S02E --> SrcJS & SrcHTML & SrcCSS
+    Win --> Setup
+    Linux --> Setup
+    Setup --> Reqs --> S00 --> S01 --> S02
+    S02 --> Backend & Frontend
     
-    %% Flujo de desarrollo
-    SrcJS & SrcHTML & SrcCSS -.->|Inyecta PATH node_env| Init
-    Init -->|Prueba gráfica nativa| OS
-
-    %% Flujo de compilación
-    SrcJS & SrcHTML & SrcCSS -.->|Compila vía electron-builder| Build
-    Build --> Dist
+    Backend & Frontend -.->|Desarrollo| Init
+    Backend & Frontend -.->|Empaquetado| Build --> Dist
     Dist -->|Publicación directa| GitHubReleases[(GitHub Releases)]
 
-    style Host fill:#f9f,stroke:#333,stroke-width:2px
+    style Environments fill:#f9f,stroke:#333,stroke-width:2px
     style Core fill:#bbf,stroke:#333,stroke-width:2px
     style Staging fill:#ff9,stroke:#333,stroke-width:2px
-    style Source fill:#fbb,stroke:#333,stroke-width:2px
+    style AppSource fill:#fbb,stroke:#333,stroke-width:2px
     style Execution fill:#bfb,stroke:#333,stroke-width:2px
 ```
